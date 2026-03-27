@@ -42,7 +42,6 @@ const Footer = () => {
     { to: '/about', label: 'About Us', icon: Star },
     { to: '/movies', label: 'Movies', icon: Film },
     { to: '/theaters', label: 'Theaters', icon: MapPin },
-    { to: '/gift-cards', label: 'Gift Cards', icon: CreditCard },
     { to: '/blog', label: 'Blog', icon: FileText }
   ];
 
