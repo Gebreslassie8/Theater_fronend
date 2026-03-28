@@ -669,7 +669,7 @@ const Login = () => {
                   <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                     Don't have an account?{' '}
                     <Link
-                      to="/register"
+                      to="/account"
                       className="text-deepTeal hover:text-deepTeal font-semibold inline-flex items-center gap-1 group"
                     >
                       Create Account

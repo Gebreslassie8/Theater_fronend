@@ -238,6 +238,7 @@ import Blogs from "./pages/Blog"
 import About from "./pages/About";
 import Help from "./pages/Help";
 import Contact from "./pages/Contact";
+import TheaterRegistration from './pages/TheaterRegistration';
 
 // Dashboard pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -328,6 +329,8 @@ function App() {
         <Route path="about" element={<About />} />
         <Route path="help" element={<Help />} />
         <Route path="contact" element={<Contact />} />
+        <Route path="account" element={<TheaterRegistration />} />
+
 
       </Route>
 
