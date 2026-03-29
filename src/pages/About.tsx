@@ -6,7 +6,8 @@ import {
     Film, Camera, Mic, Speaker, Sparkles, Trophy,
     Shield, Zap, TrendingUp, Phone, Mail, MessageCircle,
     CheckCircle, ArrowRight, Play, Quote, Smartphone,
-    Linkedin, Twitter, Facebook, Instagram, Youtube
+    Linkedin, Twitter, Facebook, Instagram, Youtube,
+    Rocket, Target, Eye, Compass, Flag, Milestone
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -51,13 +52,48 @@ const About: React.FC = () => {
         }
     ];
 
-    // Milestones
+    // Milestones - Enhanced with more details
     const milestones = [
-        { year: '2020', title: 'TheaterHUB Founded', description: 'Started with a vision to revolutionize theater booking', icon: Star },
-        { year: '2021', title: 'First 10 Theaters', description: 'Partnered with 10 theaters across Addis Ababa', icon: Building },
-        { year: '2022', title: 'Mobile App Launch', description: 'Launched iOS and Android apps for easy booking', icon: Smartphone },
-        { year: '2023', title: '100K Users', description: 'Reached 100,000 happy customers milestone', icon: Users },
-        { year: '2024', title: 'Expansion Nationwide', description: 'Expanded services to major cities across Ethiopia', icon: Globe }
+        {
+            year: '2020',
+            title: 'TheaterHUB Founded',
+            description: 'Started with a vision to revolutionize theater booking across Ethiopia',
+            icon: Star,
+            achievements: ['Seed funding secured', 'Team of 5 founded', 'MVP development started'],
+            color: 'from-deepTeal to-teal-500'
+        },
+        {
+            year: '2021',
+            title: 'First 10 Theaters',
+            description: 'Successfully partnered with 10 premier theaters in Addis Ababa',
+            icon: Building,
+            achievements: ['10 theater partners', '500+ shows listed', '10,000+ tickets sold'],
+            color: 'from-deepBlue to-blue-500'
+        },
+        {
+            year: '2022',
+            title: 'Mobile App Launch',
+            description: 'Launched iOS and Android apps for seamless mobile booking experience',
+            icon: Smartphone,
+            achievements: ['App Store launch', '4.8+ rating', '50,000+ downloads'],
+            color: 'from-deepTeal to-emerald-500'
+        },
+        {
+            year: '2023',
+            title: '100K Users',
+            description: 'Celebrated reaching 100,000 happy customers milestone',
+            icon: Users,
+            achievements: ['100K active users', 'Expanded to 5 cities', '24/7 support launched'],
+            color: 'from-deepBlue to-cyan-500'
+        },
+        {
+            year: '2024',
+            title: 'Expansion Nationwide',
+            description: 'Expanded services to major cities across Ethiopia',
+            icon: Globe,
+            achievements: ['10+ cities covered', '200+ shows monthly', 'Partnership with 50+ theaters'],
+            color: 'from-deepTeal to-teal-600'
+        }
     ];
 
     // Values
@@ -101,8 +137,12 @@ const About: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Hero Section */}
-            <div className="bg-gradient-to-br from-deepTeal via-deepBlue to-deepTeal text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+            <div className="bg-gradient-to-br from-deepTeal via-deepBlue to-deepTeal text-white relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-20 right-10 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse delay-1000"></div>
+                </div>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative">
                     <div className="text-center max-w-3xl mx-auto">
                         <motion.div
                             initial={{ scale: 0 }}
@@ -163,9 +203,9 @@ const About: React.FC = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="text-center"
+                            className="text-center group"
                         >
-                            <div className={`w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r ${stat.color} flex items-center justify-center mb-4 shadow-lg`}>
+                            <div className={`w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r ${stat.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                                 <stat.icon className="h-8 w-8 text-white" />
                             </div>
                             <div className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</div>
@@ -175,8 +215,8 @@ const About: React.FC = () => {
                 </div>
             </div>
 
-            {/* Our Story Section */}
-            <div className="bg-white py-16">
+            {/* Our Story Section - Enhanced */}
+            <div className="bg-white py-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <motion.div
@@ -185,8 +225,8 @@ const About: React.FC = () => {
                             transition={{ duration: 0.6 }}
                             viewport={{ once: true }}
                         >
-                            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Journey</h2>
-                            <div className="w-20 h-1 bg-deepTeal mb-6"></div>
+                            <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Journey</h2>
+                            <div className="w-20 h-1 bg-gradient-to-r from-deepTeal to-teal-500 mb-6"></div>
                             <p className="text-gray-600 mb-4 leading-relaxed">
                                 TheaterHUB was born from a simple idea: make theater experiences accessible to everyone. Founded in 2020, we started as a small startup with a big dream to transform how people discover and book shows.
                             </p>
@@ -196,6 +236,16 @@ const About: React.FC = () => {
                             <p className="text-gray-600 leading-relaxed">
                                 We believe in the power of live performances to inspire, entertain, and bring communities together. Every day, we work to make that magic accessible to more people.
                             </p>
+                            <div className="mt-6 flex gap-4">
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle className="h-5 w-5 text-deepTeal" />
+                                    <span className="text-sm text-gray-600">Trusted Platform</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle className="h-5 w-5 text-deepTeal" />
+                                    <span className="text-sm text-gray-600">Secure Payments</span>
+                                </div>
+                            </div>
                         </motion.div>
 
                         <motion.div
@@ -205,19 +255,19 @@ const About: React.FC = () => {
                             viewport={{ once: true }}
                             className="relative"
                         >
-                            <div className="bg-gradient-to-br from-deepTeal/10 to-deepBlue/10 rounded-3xl p-8">
+                            <div className="bg-gradient-to-br from-deepTeal/5 to-deepBlue/5 rounded-3xl p-8 shadow-xl">
                                 <div className="absolute -top-4 -left-4">
-                                    <Quote className="h-12 w-12 text-deepTeal/20" />
+                                    <Quote className="h-12 w-12 text-deepTeal/30" />
                                 </div>
                                 <p className="text-xl italic text-gray-700 mb-6 relative z-10">
                                     "We're not just booking tickets; we're creating memories that last a lifetime. Every show is an opportunity to bring joy and inspiration to our community."
                                 </p>
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-deepTeal to-deepBlue flex items-center justify-center text-white font-bold text-xl">
-                                        A
+                                    <div className="w-14 h-14 rounded-full bg-gradient-to-r from-deepTeal to-deepBlue flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                                        AJ
                                     </div>
                                     <div>
-                                        <p className="font-semibold text-gray-900">Alex Johnson</p>
+                                        <p className="font-semibold text-gray-900 text-lg">Alex Johnson</p>
                                         <p className="text-sm text-gray-500">Founder & CEO</p>
                                     </div>
                                 </div>
@@ -227,13 +277,103 @@ const About: React.FC = () => {
                 </div>
             </div>
 
-            {/* Our Values */}
-            <div className="bg-gray-50 py-16">
+            {/* Enhanced Journey Timeline */}
+            <div className="bg-gradient-to-br from-gray-50 to-white py-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Values</h2>
-                        <div className="w-20 h-1 bg-deepTeal mx-auto mb-6"></div>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            whileInView={{ scale: 1 }}
+                            viewport={{ once: true }}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-deepTeal/10 rounded-full mb-4"
+                        >
+                            <Milestone className="h-4 w-4 text-deepTeal" />
+                            <span className="text-sm font-medium text-deepTeal">Timeline</span>
+                        </motion.div>
+                        <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Milestones</h2>
+                        <div className="w-20 h-1 bg-gradient-to-r from-deepTeal to-deepBlue mx-auto mb-6"></div>
+                        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+                            Key moments that shaped our journey to revolutionize theater experiences
+                        </p>
+                    </div>
+
+                    <div className="relative">
+                        {/* Central Timeline Line */}
+                        <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-deepTeal via-deepBlue to-deepTeal rounded-full hidden lg:block"></div>
+
+                        {milestones.map((milestone, index) => (
+                            <motion.div
+                                key={milestone.year}
+                                initial={{ opacity: 0, y: 50 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6, delay: index * 0.1 }}
+                                viewport={{ once: true }}
+                                className={`relative flex flex-col lg:flex-row items-center mb-16 last:mb-0 ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
+                                    }`}
+                            >
+                                {/* Timeline Node */}
+                                <div className="absolute left-1/2 transform -translate-x-1/2 hidden lg:block">
+                                    <motion.div
+                                        whileHover={{ scale: 1.2 }}
+                                        className="w-16 h-16 rounded-full bg-gradient-to-r from-deepTeal to-deepBlue flex items-center justify-center shadow-xl z-10 relative"
+                                    >
+                                        <milestone.icon className="h-7 w-7 text-white" />
+                                    </motion.div>
+                                </div>
+
+                                {/* Content Card */}
+                                <div className={`lg:w-1/2 ${index % 2 === 0 ? 'lg:pr-16' : 'lg:pl-16'} w-full mb-8 lg:mb-0`}>
+                                    <motion.div
+                                        whileHover={{ y: -5 }}
+                                        className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300"
+                                    >
+                                        <div className={`h-2 bg-gradient-to-r ${milestone.color}`}></div>
+                                        <div className="p-6">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-deepTeal/10 rounded-full">
+                                                    <milestone.icon className="h-4 w-4 text-deepTeal" />
+                                                    <span className="text-sm font-semibold text-deepTeal">{milestone.year}</span>
+                                                </div>
+                                                <div className="text-3xl font-bold bg-gradient-to-r from-deepTeal to-deepBlue bg-clip-text text-transparent">
+                                                    {milestone.year}
+                                                </div>
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-900 mb-3">{milestone.title}</h3>
+                                            <p className="text-gray-600 mb-4 leading-relaxed">{milestone.description}</p>
+                                            <div className="space-y-2">
+                                                {milestone.achievements.map((achievement, i) => (
+                                                    <div key={i} className="flex items-center gap-2 text-sm text-gray-500">
+                                                        <CheckCircle className="h-4 w-4 text-deepTeal" />
+                                                        <span>{achievement}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                </div>
+
+                                {/* Empty spacer for alignment */}
+                                <div className="lg:w-1/2 hidden lg:block"></div>
+
+                                {/* Mobile Timeline Dot */}
+                                <div className="lg:hidden absolute left-0 top-6">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-deepTeal to-deepBlue flex items-center justify-center shadow-lg">
+                                        <milestone.icon className="h-5 w-5 text-white" />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Our Values */}
+            <div className="bg-white py-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-12">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-4">Our Values</h2>
+                        <div className="w-20 h-1 bg-gradient-to-r from-deepTeal to-deepBlue mx-auto mb-6"></div>
+                        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
                             These core principles guide everything we do at TheaterHUB
                         </p>
                     </div>
@@ -246,13 +386,14 @@ const About: React.FC = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                                 viewport={{ once: true }}
+                                whileHover={{ y: -5 }}
                                 className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 hover:shadow-xl transition-all group"
                             >
-                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-r ${value.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
+                                <div className={`w-14 h-14 rounded-xl bg-gradient-to-r ${value.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                                     <value.icon className="h-7 w-7 text-white" />
                                 </div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{value.title}</h3>
-                                <p className="text-gray-600 text-sm">{value.description}</p>
+                                <p className="text-gray-600 text-sm leading-relaxed">{value.description}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -260,12 +401,12 @@ const About: React.FC = () => {
             </div>
 
             {/* Features Section */}
-            <div className="bg-white py-16">
+            <div className="bg-gradient-to-br from-gray-50 to-white py-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose TheaterHUB</h2>
-                        <div className="w-20 h-1 bg-deepTeal mx-auto mb-6"></div>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-4">Why Choose TheaterHUB</h2>
+                        <div className="w-20 h-1 bg-gradient-to-r from-deepTeal to-deepBlue mx-auto mb-6"></div>
+                        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
                             We're dedicated to providing the best theater booking experience
                         </p>
                     </div>
@@ -278,10 +419,11 @@ const About: React.FC = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                                 viewport={{ once: true }}
-                                className="flex items-start gap-4 p-6 bg-gray-50 rounded-2xl hover:bg-white hover:shadow-lg transition-all group"
+                                whileHover={{ y: -5 }}
+                                className="flex items-start gap-4 p-6 bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all group"
                             >
-                                <div className="p-3 rounded-xl bg-deepTeal/10 group-hover:bg-deepTeal/20 transition-colors">
-                                    <feature.icon className="h-6 w-6 text-deepTeal" />
+                                <div className="p-3 rounded-xl bg-gradient-to-r from-deepTeal to-deepBlue group-hover:scale-110 transition-transform duration-300">
+                                    <feature.icon className="h-6 w-6 text-white" />
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
@@ -293,58 +435,13 @@ const About: React.FC = () => {
                 </div>
             </div>
 
-            {/* Milestones Timeline */}
-            <div className="bg-gradient-to-br from-deepTeal/5 to-deepBlue/5 py-16">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Journey</h2>
-                        <div className="w-20 h-1 bg-deepTeal mx-auto mb-6"></div>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
-                            Key milestones in our journey to revolutionize theater experiences
-                        </p>
-                    </div>
-
-                    <div className="relative">
-                        {/* Timeline Line */}
-                        <div className="absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-deepTeal/30 hidden lg:block"></div>
-
-                        {milestones.map((milestone, index) => (
-                            <motion.div
-                                key={milestone.year}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                viewport={{ once: true }}
-                                className={`flex flex-col lg:flex-row items-center mb-12 last:mb-0 ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}
-                            >
-                                <div className="lg:w-1/2"></div>
-                                <div className="lg:w-1/2 flex justify-center lg:justify-start">
-                                    <div className="relative bg-white rounded-2xl p-6 shadow-lg border border-gray-200 max-w-md">
-                                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 lg:left-0 lg:translate-x-0 -translate-y-1/2 w-12 h-12 rounded-full bg-gradient-to-r from-deepTeal to-deepBlue flex items-center justify-center text-white font-bold">
-                                            {milestone.year}
-                                        </div>
-                                        <div className="pt-6">
-                                            <div className="flex items-center gap-3 mb-3">
-                                                <milestone.icon className="h-6 w-6 text-deepTeal" />
-                                                <h3 className="text-lg font-semibold text-gray-900">{milestone.title}</h3>
-                                            </div>
-                                            <p className="text-gray-600 text-sm">{milestone.description}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
             {/* Team Section */}
-            <div className="bg-white py-16">
+            <div className="bg-white py-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
-                        <div className="w-20 h-1 bg-deepTeal mx-auto mb-6"></div>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
+                        <h2 className="text-4xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
+                        <div className="w-20 h-1 bg-gradient-to-r from-deepTeal to-deepBlue mx-auto mb-6"></div>
+                        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
                             Passionate individuals dedicated to bringing you the best theater experience
                         </p>
                     </div>
@@ -357,26 +454,27 @@ const About: React.FC = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                                 viewport={{ once: true }}
+                                whileHover={{ y: -5 }}
                                 className="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-xl transition-all group"
                             >
                                 <div className="relative overflow-hidden">
                                     <img
                                         src={member.image}
                                         alt={member.name}
-                                        className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                                        className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-500"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 </div>
                                 <div className="p-6">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{member.name}</h3>
-                                    <p className="text-deepTeal text-sm mb-3">{member.role}</p>
-                                    <p className="text-gray-600 text-sm mb-4">{member.bio}</p>
+                                    <p className="text-deepTeal text-sm font-medium mb-3">{member.role}</p>
+                                    <p className="text-gray-600 text-sm mb-4 leading-relaxed">{member.bio}</p>
                                     <div className="flex gap-3">
-                                        <a href={member.social.linkedin} className="text-gray-400 hover:text-deepTeal transition-colors">
-                                            <Linkedin className="h-5 w-5" />
+                                        <a href={member.social.linkedin} className="p-2 bg-gray-100 rounded-lg text-gray-500 hover:bg-deepTeal hover:text-white transition-all">
+                                            <Linkedin className="h-4 w-4" />
                                         </a>
-                                        <a href={member.social.twitter} className="text-gray-400 hover:text-deepTeal transition-colors">
-                                            <Twitter className="h-5 w-5" />
+                                        <a href={member.social.twitter} className="p-2 bg-gray-100 rounded-lg text-gray-500 hover:bg-deepTeal hover:text-white transition-all">
+                                            <Twitter className="h-4 w-4" />
                                         </a>
                                     </div>
                                 </div>
@@ -387,26 +485,36 @@ const About: React.FC = () => {
             </div>
 
             {/* CTA Section */}
-            <div className="bg-gradient-to-br from-deepTeal to-deepBlue text-white py-16">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 className="text-3xl font-bold mb-4">Ready to Experience Theater Like Never Before?</h2>
-                    <p className="text-white/80 mb-8 max-w-2xl mx-auto">
-                        Join thousands of theater lovers who trust TheaterHUB for their entertainment needs.
-                    </p>
-                    <div className="flex flex-wrap gap-4 justify-center">
-                        <Link
-                            to="/theaters"
-                            className="px-8 py-3 bg-white text-deepTeal rounded-xl font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl"
-                        >
-                            Find Shows Near You
-                        </Link>
-                        <Link
-                            to="/contact"
-                            className="px-8 py-3 border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition-all"
-                        >
-                            Contact Us
-                        </Link>
-                    </div>
+            <div className="bg-gradient-to-br from-deepTeal to-deepBlue text-white py-20 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-20 right-10 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse delay-1000"></div>
+                </div>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                    >
+                        <h2 className="text-4xl font-bold mb-4">Ready to Experience Theater Like Never Before?</h2>
+                        <p className="text-white/80 mb-8 max-w-2xl mx-auto text-lg">
+                            Join thousands of theater lovers who trust TheaterHUB for their entertainment needs.
+                        </p>
+                        <div className="flex flex-wrap gap-4 justify-center">
+                            <Link
+                                to="/theaters"
+                                className="px-8 py-3 bg-white text-deepTeal rounded-xl font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+                            >
+                                Find Shows Near You <ArrowRight className="h-5 w-5" />
+                            </Link>
+                            <Link
+                                to="/contact"
+                                className="px-8 py-3 border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition-all"
+                            >
+                                Contact Us
+                            </Link>
+                        </div>
+                    </motion.div>
                 </div>
             </div>
         </div>
