@@ -2,9 +2,6 @@ import React, { useState, useRef, ChangeEvent, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Building2,
-    Mail,
-    Phone,
-    MapPin,
     FileText,
     Upload,
     CheckCircle,
@@ -18,9 +15,6 @@ import {
     DollarSign,
     Shield,
     TrendingUp,
-    Zap,
-    Eye,
-    EyeOff,
     User,
     Home,
     Image,
@@ -186,7 +180,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, onSuccess,
         setIsProcessing(true);
         setError("");
 
-        // Simulate payment processing
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         console.log("Payment processed for:", formData.businessName);
@@ -1655,7 +1648,6 @@ const TheaterRegistration: React.FC = () => {
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
 
-        // Handle nested hours object
         if (name.startsWith("hours_")) {
             const [, day, period] = name.split("_");
             setFormData(prev => ({
@@ -1776,7 +1768,6 @@ const TheaterRegistration: React.FC = () => {
 
         setIsSubmitting(true);
 
-        // Simulate API call to submit registration
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         console.log("Registration Data:", formData);

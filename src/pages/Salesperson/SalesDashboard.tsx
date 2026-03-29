@@ -3,22 +3,33 @@ import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    Users, Building, DollarSign, Activity, Calendar,
-    Ticket, Star, AlertCircle, TrendingUp, Package,
-    Clock, MapPin, BarChart3, PieChart, Settings,
-    Bell, Zap, Award, Gift, Mail, Map,
-    UserPlus, CheckCircle, XCircle, Eye, Edit,
-    Download, Upload, Filter, Search, Coffee,
-    ShoppingBag, Film, Music, Percent, RotateCcw,
-    History, UserCheck, CreditCard, Printer,
-    QrCode, Scan, Smartphone, Wallet, Receipt,
-    ShoppingCart, Tag, Headphones, MessageSquare,
-    ThumbsUp, ThumbsDown, Phone, MailIcon
+    Users,
+    DollarSign,
+    Activity,
+    Calendar,
+    Ticket,
+    Award,
+    CheckCircle,
+    XCircle,
+    Eye,
+    Edit,
+    Download,
+    Filter,
+    Search,
+    BarChart3,
+    Settings,
+    UserCheck,
+    CreditCard,
+    Printer,
+    Receipt,
+    Tag,
+    Headphones,
+    Clock
 } from 'lucide-react';
 import {
-    AreaChart, Area, BarChart, Bar, PieChart as RePieChart, Pie,
+    AreaChart, Area, PieChart as RePieChart, Pie,
     XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, Cell, LineChart, Line
+    ResponsiveContainer, Cell
 } from 'recharts';
 
 // Types
@@ -226,7 +237,7 @@ const SalesDashboard: React.FC = () => {
     const paymentMethods: PaymentMethod[] = [
         { name: 'Cash', value: 45, color: '#10B981', icon: DollarSign },
         { name: 'Credit Card', value: 35, color: '#3B82F6', icon: CreditCard },
-        { name: 'Mobile Money', value: 20, color: '#8B5CF6', icon: Smartphone },
+        { name: 'Mobile Money', value: 20, color: '#8B5CF6', icon: Activity },
     ];
 
     // Popular Shows Data
@@ -406,6 +417,7 @@ const SalesDashboard: React.FC = () => {
                     <p className="text-2xl font-bold text-green-600">{stats.completedBookings}</p>
                 </div>
                 <div className="bg-white rounded-xl p-4 shadow border border-gray-200">
+                    <p className="text-sm text-gray-500 mb-1">Refunded</p>
                     <p className="text-2xl font-bold text-red-600">${stats.refundedAmount}</p>
                 </div>
                 <div className="bg-white rounded-xl p-4 shadow border border-gray-200">
@@ -419,7 +431,7 @@ const SalesDashboard: React.FC = () => {
                 <QuickActionButton icon={Ticket} text="New Booking" color="green" />
                 <QuickActionButton icon={Printer} text="Print Tickets" color="blue" />
                 <QuickActionButton icon={CreditCard} text="Process Payment" color="purple" />
-                <QuickActionButton icon={RotateCcw} text="Refund" color="red" />
+                <QuickActionButton icon={Activity} text="Refund" color="red" />
             </motion.div>
 
             {/* Today's Shows & Sales Chart */}

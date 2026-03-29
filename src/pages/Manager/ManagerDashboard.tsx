@@ -3,22 +3,35 @@ import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    Users, Building, DollarSign, Activity, Calendar,
-    Ticket, Star, AlertCircle, TrendingUp, Package,
-    Clock, MapPin, BarChart3, PieChart, Settings,
-    Bell, Zap, Award, Gift, Mail, Map,
-    UserPlus, CheckCircle, XCircle, Eye, Edit,
-    Download, Upload, Filter, Search, Coffee,
-    ShoppingBag, Film, Music, Percent, RotateCcw,
-    History, UserCheck, ClipboardCheck, QrCode,
-    DoorOpen, Grid, Layout, Speaker, Wifi,
-    Camera, Video, Headphones, Mic, Monitor,
-    Sun, Moon, Cloud, Wind, Thermometer
+    Users,
+    Building,
+    DollarSign,
+    Activity,
+    Calendar,
+    Ticket,
+    Star,
+    AlertCircle,
+    TrendingUp,
+    Package,
+    Clock,
+    MapPin,
+    BarChart3,
+    Settings,
+    Bell,
+    Award,
+    CheckCircle,
+    Eye,
+    Edit,
+    Download,
+    Filter,
+    ClipboardCheck,
+    QrCode,
+    Coffee
 } from 'lucide-react';
 import {
-    AreaChart, Area, BarChart, Bar, PieChart as RePieChart, Pie,
+    BarChart, Bar,
     XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, Cell, LineChart, Line
+    ResponsiveContainer
 } from 'recharts';
 
 // Types
@@ -104,12 +117,6 @@ interface Issue {
     time: string;
 }
 
-interface RevenueData {
-    hour: string;
-    revenue: number;
-    tickets: number;
-}
-
 interface Stats {
     todayEvents: number;
     upcomingEvents: number;
@@ -131,9 +138,9 @@ interface Stats {
 }
 
 const ManagerDashboard: React.FC = () => {
-    const { user } = useOutletContext < OutletContext > ();
-    const [activeTab, setActiveTab] = useState < string > ('overview');
-    const [dateRange, setDateRange] = useState < string > ('day');
+    const { user } = useOutletContext<OutletContext>();
+    const [activeTab, setActiveTab] = useState<string>('overview');
+    const [dateRange, setDateRange] = useState<string>('day');
 
     // Animation variants
     const containerVariants = {
@@ -226,19 +233,6 @@ const ManagerDashboard: React.FC = () => {
         { id: 4, issue: 'Cleaning required', hall: 'Hall D', priority: 'low', status: 'scheduled', time: '3 hours' },
     ];
 
-    // Revenue Data
-    const revenueData: RevenueData[] = [
-        { hour: '10AM', revenue: 450, tickets: 25 },
-        { hour: '11AM', revenue: 380, tickets: 19 },
-        { hour: '12PM', revenue: 520, tickets: 28 },
-        { hour: '1PM', revenue: 680, tickets: 34 },
-        { hour: '2PM', revenue: 590, tickets: 31 },
-        { hour: '3PM', revenue: 720, tickets: 38 },
-        { hour: '4PM', revenue: 890, tickets: 45 },
-        { hour: '5PM', revenue: 450, tickets: 23 },
-        { hour: '6PM', revenue: 950, tickets: 48 },
-    ];
-
     return (
         <motion.div
             initial="hidden"
@@ -327,8 +321,8 @@ const ManagerDashboard: React.FC = () => {
                             key={range}
                             onClick={() => setDateRange(range)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${dateRange === range
-                                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                         >
                             {range.charAt(0).toUpperCase() + range.slice(1)}
@@ -430,8 +424,8 @@ const ManagerDashboard: React.FC = () => {
                                     </td>
                                     <td className="py-3 px-4">
                                         <span className={`text-xs px-2 py-1 rounded-full ${item.status === 'completed' ? 'bg-green-100 text-green-700' :
-                                                item.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
-                                                    'bg-gray-100 text-gray-700'
+                                            item.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
+                                                'bg-gray-100 text-gray-700'
                                             }`}>
                                             {item.status}
                                         </span>
@@ -470,16 +464,16 @@ const ManagerDashboard: React.FC = () => {
                                 <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-3">
                                         <div className={`w-3 h-3 rounded-full ${hall.status === 'in-use' ? 'bg-green-500 animate-pulse' :
-                                                hall.status === 'available' ? 'bg-blue-500' :
-                                                    hall.status === 'cleaning' ? 'bg-yellow-500' :
-                                                        'bg-red-500'
+                                            hall.status === 'available' ? 'bg-blue-500' :
+                                                hall.status === 'cleaning' ? 'bg-yellow-500' :
+                                                    'bg-red-500'
                                             }`} />
                                         <h4 className="font-semibold text-gray-900">{hall.name}</h4>
                                     </div>
                                     <span className={`text-xs px-2 py-1 rounded-full ${hall.status === 'in-use' ? 'bg-green-100 text-green-700' :
-                                            hall.status === 'available' ? 'bg-blue-100 text-blue-700' :
-                                                hall.status === 'cleaning' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-red-100 text-red-700'
+                                        hall.status === 'available' ? 'bg-blue-100 text-blue-700' :
+                                            hall.status === 'cleaning' ? 'bg-yellow-100 text-yellow-700' :
+                                                'bg-red-100 text-red-700'
                                         }`}>
                                         {hall.status}
                                     </span>
@@ -547,8 +541,8 @@ const ManagerDashboard: React.FC = () => {
                                             animate={{ width: `${(item.stock / 200) * 100}%` }}
                                             transition={{ duration: 1, delay: index * 0.1 }}
                                             className={`h-2 rounded-full ${item.status === 'good' ? 'bg-green-500' :
-                                                    item.status === 'warning' ? 'bg-yellow-500' :
-                                                        'bg-red-500'
+                                                item.status === 'warning' ? 'bg-yellow-500' :
+                                                    'bg-red-500'
                                                 }`}
                                         />
                                     </div>
@@ -582,8 +576,8 @@ const ManagerDashboard: React.FC = () => {
                                         <p className="text-xs text-gray-500 mt-1">{issue.hall}</p>
                                     </div>
                                     <span className={`text-xs px-2 py-1 rounded-full ${issue.priority === 'high' ? 'bg-red-100 text-red-700' :
-                                            issue.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                                                'bg-green-100 text-green-700'
+                                        issue.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                            'bg-green-100 text-green-700'
                                         }`}>
                                         {issue.priority}
                                     </span>
@@ -591,8 +585,8 @@ const ManagerDashboard: React.FC = () => {
                                 <div className="flex items-center justify-between text-sm">
                                     <div className="flex items-center gap-2">
                                         <span className={`text-xs px-2 py-0.5 rounded-full ${issue.status === 'in-progress' ? 'bg-blue-100 text-blue-700' :
-                                                issue.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-gray-100 text-gray-700'
+                                            issue.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                'bg-gray-100 text-gray-700'
                                             }`}>
                                             {issue.status}
                                         </span>
@@ -631,7 +625,7 @@ const ManagerDashboard: React.FC = () => {
                                     <div className="flex items-center gap-2 mt-1">
                                         <span className="text-xs text-gray-400">{staff.shift}</span>
                                         <span className={`text-xs px-1.5 py-0.5 rounded-full ${staff.status === 'active' ? 'bg-green-100 text-green-700' :
-                                                'bg-yellow-100 text-yellow-700'
+                                            'bg-yellow-100 text-yellow-700'
                                             }`}>
                                             {staff.status}
                                         </span>
@@ -670,8 +664,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, change, t
                         {change && (
                             <div className="flex items-center gap-1 mt-2">
                                 <span className={`text-xs px-2 py-0.5 rounded-full ${trend === 'up'
-                                        ? 'bg-green-100 text-green-700'
-                                        : 'bg-red-100 text-red-700'
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-red-100 text-red-700'
                                     }`}>
                                     {change}
                                 </span>

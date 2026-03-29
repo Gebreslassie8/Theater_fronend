@@ -1,18 +1,31 @@
 // Frontend/src/Admin/AdminDashboard.tsx
 import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-    Users, Building, DollarSign, Activity, Shield,
-    Calendar, Ticket, Star, AlertCircle,
-    TrendingUp, Package, Clock, MapPin,
-    BarChart3, PieChart, Settings, Bell, Zap,
-    Globe, Award, Gift, Mail, Map,
-    UserPlus, CheckCircle, XCircle, Eye, Edit,
-    Download, Upload, Filter, Search
+    Users,
+    Building,
+    DollarSign,
+    Activity,
+    Shield,
+    Calendar,
+    Ticket,
+    Star,
+    AlertCircle,
+    Package,
+    Clock,
+    MapPin,
+    Settings,
+    Globe,
+    Award,
+    CheckCircle,
+    Eye,
+    Edit,
+    Download,
+    Filter
 } from 'lucide-react';
 import {
-    AreaChart, Area, BarChart, Bar, PieChart as RePieChart, Pie,
+    AreaChart, Area, PieChart as RePieChart, Pie,
     XAxis, YAxis, CartesianGrid, Tooltip,
     ResponsiveContainer, Cell, LineChart, Line
 } from 'recharts';
@@ -28,7 +41,7 @@ interface User {
 interface StatCardProps {
     title: string;
     value: string | number;
-    icon: React.ElementType; // Changed from LucideIcon to React.ElementType
+    icon: React.ElementType;
     change?: string;
     trend?: 'up' | 'down';
     color: string;
@@ -37,7 +50,7 @@ interface StatCardProps {
 }
 
 interface QuickStatBadgeProps {
-    icon: React.ElementType; // Changed from LucideIcon to React.ElementType
+    icon: React.ElementType;
     label: string;
     value: string | number;
     status?: 'online' | 'offline';
@@ -67,7 +80,7 @@ interface Activity {
     action: string;
     user: string;
     time: string;
-    icon: React.ElementType; // Changed from LucideIcon to React.ElementType
+    icon: React.ElementType;
     status: 'success' | 'warning' | 'info';
 }
 
@@ -336,7 +349,7 @@ const AdminDashboard: React.FC = () => {
                             key={range}
                             onClick={() => setDateRange(range)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${dateRange === range
-                                ? 'bg-deepTeal text-white shadow-lg shadow-deepTeal/30'
+                                ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/30'
                                 : 'bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-dark-600'
                                 }`}
                         >
@@ -362,7 +375,7 @@ const AdminDashboard: React.FC = () => {
                     icon={Building}
                     change="+3"
                     trend="up"
-                    color="from-deepTeal to-skyTeal"
+                    color="from-teal-500 to-teal-600"
                     delay={0.1}
                     dateRange={dateRange}
                 />
@@ -372,7 +385,7 @@ const AdminDashboard: React.FC = () => {
                     icon={Users}
                     change="+180"
                     trend="up"
-                    color="from-deepBlue to-skyTeal"
+                    color="from-blue-500 to-cyan-500"
                     delay={0.2}
                     dateRange={dateRange}
                 />
@@ -382,7 +395,7 @@ const AdminDashboard: React.FC = () => {
                     icon={DollarSign}
                     change="+$45K"
                     trend="up"
-                    color="from-skyTeal to-deepTeal"
+                    color="from-green-500 to-emerald-500"
                     delay={0.3}
                     dateRange={dateRange}
                 />
@@ -392,7 +405,7 @@ const AdminDashboard: React.FC = () => {
                     icon={Activity}
                     change="+2%"
                     trend="up"
-                    color="from-deepTeal to-deepBlue"
+                    color="from-purple-500 to-pink-500"
                     delay={0.4}
                     dateRange={dateRange}
                 />
@@ -431,7 +444,7 @@ const AdminDashboard: React.FC = () => {
                             <p className="text-sm text-gray-500 dark:text-gray-400">Monthly revenue trend</p>
                         </div>
                         <div className="flex gap-2">
-                            <span className="px-3 py-1 bg-deepTeal/10 text-deepTeal rounded-lg text-sm">+23.5%</span>
+                            <span className="px-3 py-1 bg-teal-100 text-teal-700 rounded-lg text-sm">+23.5%</span>
                         </div>
                     </div>
                     <ResponsiveContainer width="100%" height={300}>
@@ -593,7 +606,7 @@ const AdminDashboard: React.FC = () => {
             <motion.div variants={itemVariants} className="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-xl border border-gray-200 dark:border-dark-700">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
-                    <button className="text-sm text-deepTeal hover:underline">View All</button>
+                    <button className="text-sm text-teal-600 hover:underline">View All</button>
                 </div>
                 <div className="space-y-3">
                     {recentActivities.map((activity, index) => (

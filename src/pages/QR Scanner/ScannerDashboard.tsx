@@ -1,27 +1,34 @@
 // Frontend/src/pages/scanner/ScannerDashboard.tsx
 import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-    Users, Building, DollarSign, Activity, Calendar,
-    Ticket, Star, AlertCircle, TrendingUp, Package,
-    Clock, MapPin, BarChart3, PieChart, Settings,
-    Bell, Zap, Award, Gift, Mail, Map,
-    UserPlus, CheckCircle, XCircle, Eye, Edit,
-    Download, Upload, Filter, Search, Coffee,
-    ShoppingBag, Film, Music, Percent, RotateCcw,
-    History, UserCheck, CreditCard, Printer,
-    QrCode, Scan, Smartphone, Wallet, Receipt,
-    DoorOpen, ShieldCheck, AlertTriangle, Flag,
-    Camera, Video, Headphones, Mic, Wifi,
-    Battery, Cpu, HardDrive, Server, Globe,
-    ThumbsUp, ThumbsDown, Phone, Mail as MailIcon,
-    ScanLine, HelpCircle, Pause
+    Users,
+    Calendar,
+    Ticket,
+    CheckCircle,
+    XCircle,
+    Download,
+    BarChart3,
+    Settings,
+    Scan,
+    QrCode,
+    DoorOpen,
+    Battery,
+    Clock,
+    AlertTriangle,
+    Wifi,
+    Cpu,
+    HardDrive,
+    HelpCircle,
+    Pause,
+    RotateCcw,
+    Activity
 } from 'lucide-react';
 import {
-    AreaChart, Area, BarChart, Bar, PieChart as RePieChart, Pie,
+    BarChart, Bar,
     XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, Cell, LineChart, Line
+    ResponsiveContainer
 } from 'recharts';
 
 // Types
@@ -137,7 +144,6 @@ interface ScannerStats {
 
 const ScannerDashboard: React.FC = () => {
     const { user } = useOutletContext<OutletContext>();
-    const [activeTab, setActiveTab] = useState<string>('overview');
     const [scanMode, setScanMode] = useState<string>('continuous');
     const [scanStatus, setScanStatus] = useState<string>('ready');
 
@@ -319,9 +325,9 @@ const ScannerDashboard: React.FC = () => {
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-base sm:text-lg font-semibold text-gray-900">Live Scanner</h3>
                             <div className="flex items-center gap-2">
-                                <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${scanStatus === 'ready' ? 'bg-success-bg text-success' :
-                                    scanStatus === 'scanning' ? 'bg-info-bg text-info animate-pulse' :
-                                        'bg-warning-bg text-warning'
+                                <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${scanStatus === 'ready' ? 'bg-green-100 text-green-600' :
+                                    scanStatus === 'scanning' ? 'bg-blue-100 text-blue-600 animate-pulse' :
+                                        'bg-yellow-100 text-yellow-600'
                                     }`}>
                                     {scanStatus === 'ready' ? 'Ready' : scanStatus === 'scanning' ? 'Scanning...' : 'Paused'}
                                 </span>
@@ -339,7 +345,7 @@ const ScannerDashboard: React.FC = () => {
                                     repeat: Infinity,
                                     ease: "easeInOut",
                                 }}
-                                className="absolute inset-0 bg-gradient-to-r from-success/20 to-info/20"
+                                className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20"
                             />
 
                             {/* Scanner Line */}
@@ -352,7 +358,7 @@ const ScannerDashboard: React.FC = () => {
                                     repeat: Infinity,
                                     ease: "linear",
                                 }}
-                                className="absolute w-full h-1 bg-success shadow-lg shadow-success/50"
+                                className="absolute w-full h-1 bg-green-500 shadow-lg shadow-green-500/50"
                             />
 
                             {/* Center Icon */}
@@ -367,14 +373,14 @@ const ScannerDashboard: React.FC = () => {
                         <div className="grid grid-cols-3 gap-3 mt-4">
                             <button
                                 onClick={() => setScanStatus('scanning')}
-                                className="p-2 sm:p-3 bg-success text-white rounded-xl hover:bg-green-600 transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
+                                className="p-2 sm:p-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
                             >
                                 <Scan className="h-4 w-4 sm:h-5 sm:w-5" />
                                 <span>Start</span>
                             </button>
                             <button
                                 onClick={() => setScanStatus('paused')}
-                                className="p-2 sm:p-3 bg-warning text-white rounded-xl hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
+                                className="p-2 sm:p-3 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm"
                             >
                                 <Pause className="h-4 w-4 sm:h-5 sm:w-5" />
                                 <span>Pause</span>
@@ -394,29 +400,29 @@ const ScannerDashboard: React.FC = () => {
                         <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-200">
                             <div className="flex items-center justify-between mb-4">
                                 <p className="text-xs sm:text-sm text-gray-500">Scanned Today</p>
-                                <Scan className="h-4 w-4 sm:h-5 sm:w-5 text-success" />
+                                <Scan className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                             </div>
                             <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">{stats.scannedToday}</p>
-                            <p className="text-xs sm:text-sm text-success mt-2">+{stats.scannedThisHour} this hour</p>
+                            <p className="text-xs sm:text-sm text-green-500 mt-2">+{stats.scannedThisHour} this hour</p>
                         </div>
 
                         <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-200">
                             <div className="flex items-center justify-between mb-4">
                                 <p className="text-xs sm:text-sm text-gray-500">Valid Entries</p>
-                                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-success" />
+                                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                             </div>
-                            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-success">{stats.validEntries}</p>
+                            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-500">{stats.validEntries}</p>
                             <p className="text-xs sm:text-sm text-gray-500 mt-2">{((stats.validEntries / stats.scannedToday) * 100).toFixed(1)}% success rate</p>
                         </div>
 
                         <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-200">
                             <div className="flex items-center justify-between mb-4">
                                 <p className="text-xs sm:text-sm text-gray-500">Invalid Tickets</p>
-                                <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-error" />
+                                <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
                             </div>
-                            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-error">{stats.invalidTickets}</p>
+                            <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-red-500">{stats.invalidTickets}</p>
                             <div className="text-[10px] sm:text-xs text-gray-500 mt-2">
-                                <span className="text-warning">{stats.duplicateAttempts} duplicate</span> ·
+                                <span className="text-yellow-600">{stats.duplicateAttempts} duplicate</span> ·
                                 <span className="text-orange-600"> {stats.expiredTickets} expired</span>
                             </div>
                         </div>
@@ -424,7 +430,7 @@ const ScannerDashboard: React.FC = () => {
                         <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-200">
                             <div className="flex items-center justify-between mb-4">
                                 <p className="text-xs sm:text-sm text-gray-500">Avg. Scan Time</p>
-                                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-info" />
+                                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
                             </div>
                             <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">{stats.avgScanTime}</p>
                             <p className="text-xs sm:text-sm text-gray-500 mt-2">Peak: {stats.peakHour}</p>
@@ -447,22 +453,22 @@ const ScannerDashboard: React.FC = () => {
                                     initial={{ x: -20, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ delay: index * 0.05 }}
-                                    className={`flex flex-wrap items-center justify-between p-3 rounded-xl gap-2 ${scan.status === 'valid' ? 'bg-success-bg' :
-                                        scan.status === 'invalid' ? 'bg-error-bg' :
-                                            'bg-warning-bg'
+                                    className={`flex flex-wrap items-center justify-between p-3 rounded-xl gap-2 ${scan.status === 'valid' ? 'bg-green-50' :
+                                        scan.status === 'invalid' ? 'bg-red-50' :
+                                            'bg-yellow-50'
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className={`p-1.5 sm:p-2 rounded-lg ${scan.status === 'valid' ? 'bg-success-bg' :
-                                            scan.status === 'invalid' ? 'bg-error-bg' :
-                                                'bg-warning-bg'
+                                        <div className={`p-1.5 sm:p-2 rounded-lg ${scan.status === 'valid' ? 'bg-green-100' :
+                                            scan.status === 'invalid' ? 'bg-red-100' :
+                                                'bg-yellow-100'
                                             }`}>
                                             {scan.status === 'valid' ? (
-                                                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-success" />
+                                                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                                             ) : scan.status === 'invalid' ? (
-                                                <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-error" />
+                                                <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
                                             ) : (
-                                                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-warning" />
+                                                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />
                                             )}
                                         </div>
                                         <div>
@@ -472,7 +478,7 @@ const ScannerDashboard: React.FC = () => {
                                             </div>
                                             <p className="text-[10px] sm:text-xs text-gray-500">{scan.show} • {scan.method}</p>
                                             {scan.reason && (
-                                                <p className="text-[10px] sm:text-xs text-error mt-1">{scan.reason}</p>
+                                                <p className="text-[10px] sm:text-xs text-red-500 mt-1">{scan.reason}</p>
                                             )}
                                         </div>
                                     </div>
@@ -496,9 +502,9 @@ const ScannerDashboard: React.FC = () => {
                                 >
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
-                                            <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${gate.status === 'active' ? 'bg-success animate-pulse' :
-                                                gate.status === 'standby' ? 'bg-warning' :
-                                                    'bg-error'
+                                            <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${gate.status === 'active' ? 'bg-green-500 animate-pulse' :
+                                                gate.status === 'standby' ? 'bg-yellow-500' :
+                                                    'bg-red-500'
                                                 }`} />
                                             <h4 className="text-sm sm:text-base font-semibold text-gray-900">{gate.name}</h4>
                                         </div>
@@ -515,7 +521,7 @@ const ScannerDashboard: React.FC = () => {
                                         </div>
                                         <div>
                                             <p className="text-gray-500">Connection</p>
-                                            <p className={`font-medium ${gate.connection === 'online' ? 'text-success' : 'text-error'
+                                            <p className={`font-medium ${gate.connection === 'online' ? 'text-green-500' : 'text-red-500'
                                                 }`}>
                                                 {gate.connection}
                                             </p>
@@ -533,7 +539,7 @@ const ScannerDashboard: React.FC = () => {
                     <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-200">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-base sm:text-lg font-semibold text-gray-900">Upcoming Shows - Today</h3>
-                            <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-info-bg text-info rounded-full">{stats.todayEvents} shows</span>
+                            <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full">{stats.todayEvents} shows</span>
                         </div>
                         <div className="space-y-3">
                             {upcomingShows.map((show, index) => (
@@ -549,17 +555,17 @@ const ScannerDashboard: React.FC = () => {
                                             <h4 className="text-sm sm:text-base font-semibold text-gray-900">{show.name}</h4>
                                             <p className="text-[10px] sm:text-xs text-gray-500">{show.time} • {show.hall}</p>
                                         </div>
-                                        <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                                        <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-blue-500/10 text-blue-600 rounded-full">
                                             Gate {show.gate}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between text-xs sm:text-sm">
                                         <span className="text-gray-600">Sold: {show.sold}/{show.capacity}</span>
-                                        <span className="text-success font-medium">{show.remaining} remaining</span>
+                                        <span className="text-green-600 font-medium">{show.remaining} remaining</span>
                                     </div>
                                     <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
                                         <div
-                                            className="bg-success h-1.5 rounded-full"
+                                            className="bg-green-500 h-1.5 rounded-full"
                                             style={{ width: `${(show.sold / show.capacity) * 100}%` }}
                                         />
                                     </div>
@@ -572,7 +578,7 @@ const ScannerDashboard: React.FC = () => {
                     <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-200">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-base sm:text-lg font-semibold text-gray-900">Invalid Tickets</h3>
-                            <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-error-bg text-error rounded-full">{stats.invalidTickets} issues</span>
+                            <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-100 text-red-600 rounded-full">{stats.invalidTickets} issues</span>
                         </div>
                         <div className="space-y-3">
                             {invalidTickets.map((ticket, index) => (
@@ -581,23 +587,23 @@ const ScannerDashboard: React.FC = () => {
                                     initial={{ x: 20, opacity: 0 }}
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ delay: index * 0.1 }}
-                                    className="p-3 sm:p-4 bg-error-bg rounded-xl border border-error/20"
+                                    className="p-3 sm:p-4 bg-red-50 rounded-xl border border-red-200"
                                 >
                                     <div className="flex items-start justify-between">
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-error" />
+                                                <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
                                                 <span className="text-xs sm:text-sm font-medium text-gray-900">{ticket.ticket}</span>
                                             </div>
                                             <p className="text-[10px] sm:text-xs text-gray-600 mt-1">{ticket.show} • {ticket.time}</p>
-                                            <p className="text-[10px] sm:text-xs text-error mt-2">Reason: {ticket.reason}</p>
+                                            <p className="text-[10px] sm:text-xs text-red-600 mt-2">Reason: {ticket.reason}</p>
                                         </div>
-                                        <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-error/20 text-error rounded-full">
+                                        <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-red-200 text-red-700 rounded-full">
                                             {ticket.action}
                                         </span>
                                     </div>
                                     <div className="flex gap-2 mt-3">
-                                        <button className="flex-1 px-2 sm:px-3 py-1 bg-warning text-white text-[10px] sm:text-xs rounded-lg hover:bg-yellow-600">
+                                        <button className="flex-1 px-2 sm:px-3 py-1 bg-yellow-500 text-white text-[10px] sm:text-xs rounded-lg hover:bg-yellow-600">
                                             Report
                                         </button>
                                         <button className="flex-1 px-2 sm:px-3 py-1 bg-gray-500 text-white text-[10px] sm:text-xs rounded-lg hover:bg-gray-600">
@@ -647,7 +653,7 @@ const ScannerDashboard: React.FC = () => {
                 <motion.div variants={itemVariants} className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                     <StatusIndicator icon={Wifi} label="Connection" value="Strong" color="green" />
                     <StatusIndicator icon={Battery} label="Battery" value={`${stats.scannerBattery}%`} color={stats.scannerBattery > 50 ? 'green' : stats.scannerBattery > 20 ? 'yellow' : 'red'} />
-                    <StatusIndicator icon={Cpu} label="Scanner Model" value="QR-3000X" color="blue" />
+                    <StatusIndicator icon={Activity} label="Scanner Model" value="QR-3000X" color="blue" />
                     <StatusIndicator icon={HardDrive} label="Storage" value="45% used" color="gray" />
                 </motion.div>
             </motion.div>
@@ -658,12 +664,12 @@ const ScannerDashboard: React.FC = () => {
 // Quick Action Button
 const QuickActionButton: React.FC<QuickActionButtonProps> = ({ icon: Icon, text, color }) => {
     const colors = {
-        blue: 'from-info to-cyan-600 hover:from-cyan-600 hover:to-info',
-        green: 'from-success to-green-600 hover:from-green-600 hover:to-success',
-        purple: 'from-primary to-purple-600 hover:from-purple-600 hover:to-primary',
-        red: 'from-error to-red-600 hover:from-red-600 hover:to-error',
+        blue: 'from-blue-500 to-cyan-600 hover:from-cyan-600 hover:to-blue-500',
+        green: 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-500',
+        purple: 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-500',
+        red: 'from-red-500 to-red-600 hover:from-red-600 hover:to-red-500',
         gray: 'from-gray-500 to-slate-500 hover:from-gray-600 hover:to-slate-600',
-        amber: 'from-warning to-yellow-600 hover:from-yellow-600 hover:to-warning'
+        amber: 'from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-500'
     };
 
     return (
@@ -679,10 +685,10 @@ const QuickActionButton: React.FC<QuickActionButtonProps> = ({ icon: Icon, text,
 // Status Indicator
 const StatusIndicator: React.FC<StatusIndicatorProps> = ({ icon: Icon, label, value, color }) => {
     const colors = {
-        green: 'text-success',
-        yellow: 'text-warning',
-        red: 'text-error',
-        blue: 'text-info',
+        green: 'text-green-500',
+        yellow: 'text-yellow-500',
+        red: 'text-red-500',
+        blue: 'text-blue-500',
         gray: 'text-gray-600'
     };
 

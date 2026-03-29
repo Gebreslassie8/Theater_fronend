@@ -3,21 +3,30 @@ import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    Home, Calendar, Ticket, Star, Heart,
-    Clock, MapPin, DollarSign, Users, Film,
-    Music, Award, Gift, Coffee, ShoppingBag,
-    Download, QrCode, Share2, Bookmark,
-    ChevronRight, TrendingUp, Sparkles,
-    Wallet, CreditCard, Smartphone, Bell,
-    Settings, HelpCircle, LogOut, User,
-    Eye, EyeOff, CheckCircle, XCircle,
-    AlertCircle, ThumbsUp, MessageCircle,
-    Headphones, Mail, Phone, Map
+    Calendar,
+    Ticket,
+    Star,
+    Heart,
+    Clock,
+    MapPin,
+    DollarSign,
+    Award,
+    Gift,
+    Download,
+    QrCode,
+    Share2,
+    Bookmark,
+    ChevronRight,
+    TrendingUp,
+    Wallet,
+    CheckCircle,
+    XCircle,
+    Headphones
 } from 'lucide-react';
 import {
-    AreaChart, Area, BarChart, Bar, PieChart as RePieChart, Pie,
+    AreaChart, Area, PieChart as RePieChart, Pie,
     XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, Cell, LineChart, Line
+    ResponsiveContainer, Cell
 } from 'recharts';
 
 // Types
@@ -380,7 +389,7 @@ const CustomerDashboard: React.FC = () => {
                         icon={Calendar}
                         change="+2"
                         trend="up"
-                        color="from-success to-green-600"
+                        color="from-green-500 to-green-600"
                         delay={0.1}
                         dateRange="month"
                     />
@@ -390,7 +399,7 @@ const CustomerDashboard: React.FC = () => {
                         icon={Star}
                         change="+150"
                         trend="up"
-                        color="from-warning to-yellow-600"
+                        color="from-yellow-500 to-yellow-600"
                         delay={0.2}
                         dateRange="month"
                     />
@@ -400,7 +409,7 @@ const CustomerDashboard: React.FC = () => {
                         icon={DollarSign}
                         change="+$45"
                         trend="up"
-                        color="from-info to-cyan-600"
+                        color="from-cyan-500 to-cyan-600"
                         delay={0.3}
                         dateRange="month"
                     />
@@ -410,7 +419,7 @@ const CustomerDashboard: React.FC = () => {
                         icon={Wallet}
                         change="+$20"
                         trend="up"
-                        color="from-primary to-purple-600"
+                        color="from-purple-500 to-purple-600"
                         delay={0.4}
                         dateRange="month"
                     />
@@ -420,7 +429,7 @@ const CustomerDashboard: React.FC = () => {
                 <motion.div variants={itemVariants}>
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Your Upcoming Shows</h2>
-                        <button className="text-sm text-primary hover:underline flex items-center gap-1">
+                        <button className="text-sm text-purple-600 hover:underline flex items-center gap-1">
                             View All <ChevronRight className="h-4 w-4" />
                         </button>
                     </div>
@@ -440,24 +449,24 @@ const CustomerDashboard: React.FC = () => {
                                             <h3 className="font-semibold text-gray-900">{show.title}</h3>
                                             <p className="text-sm text-gray-500">{show.venue}</p>
                                         </div>
-                                        <span className={`text-xs px-2 py-1 rounded-full ${show.status === 'confirmed' ? 'bg-success-bg text-success' :
-                                            show.status === 'pending' ? 'bg-warning-bg text-warning' :
-                                                'bg-error-bg text-error'
+                                        <span className={`text-xs px-2 py-1 rounded-full ${show.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                                            show.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                'bg-red-100 text-red-700'
                                             }`}>
                                             {show.status}
                                         </span>
                                     </div>
                                     <div className="space-y-2 mt-3">
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                                            <Calendar className="h-4 w-4 text-primary" />
+                                            <Calendar className="h-4 w-4 text-purple-600" />
                                             <span>{new Date(show.date).toLocaleDateString()} at {show.time}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                                            <MapPin className="h-4 w-4 text-primary" />
+                                            <MapPin className="h-4 w-4 text-purple-600" />
                                             <span>{show.venue}</span>
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                                            <Ticket className="h-4 w-4 text-primary" />
+                                            <Ticket className="h-4 w-4 text-purple-600" />
                                             <span>Seats: {show.seats}</span>
                                         </div>
                                     </div>
@@ -466,7 +475,7 @@ const CustomerDashboard: React.FC = () => {
                                             <QrCode className="h-5 w-5 text-gray-400" />
                                             <span className="text-xs text-gray-500">E-Ticket Available</span>
                                         </div>
-                                        <button className="px-3 py-1.5 bg-primary text-white text-sm rounded-lg hover:bg-purple-700 transition-colors">
+                                        <button className="px-3 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors">
                                             View Ticket
                                         </button>
                                     </div>
@@ -482,7 +491,7 @@ const CustomerDashboard: React.FC = () => {
                     <div className="lg:col-span-2">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Recommended for You</h2>
-                            <button className="text-sm text-primary hover:underline flex items-center gap-1">
+                            <button className="text-sm text-purple-600 hover:underline flex items-center gap-1">
                                 See All <ChevronRight className="h-4 w-4" />
                             </button>
                         </div>
@@ -501,7 +510,7 @@ const CustomerDashboard: React.FC = () => {
                                             <div>
                                                 <h3 className="font-semibold text-gray-900">{show.title}</h3>
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">{show.genre}</span>
+                                                    <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">{show.genre}</span>
                                                     <div className="flex items-center gap-1">
                                                         <Star className="h-3 w-3 text-yellow-400 fill-current" />
                                                         <span className="text-xs text-gray-600">{show.rating}</span>
@@ -509,7 +518,7 @@ const CustomerDashboard: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-lg font-bold text-primary">${show.price}</div>
+                                                <div className="text-lg font-bold text-purple-600">${show.price}</div>
                                                 <div className="text-xs text-gray-500">per ticket</div>
                                             </div>
                                         </div>
@@ -523,7 +532,7 @@ const CustomerDashboard: React.FC = () => {
                                                 {show.venue}
                                             </span>
                                         </div>
-                                        <button className="mt-2 px-3 py-1.5 bg-success text-white text-xs rounded-lg hover:bg-green-600 transition-colors">
+                                        <button className="mt-2 px-3 py-1.5 bg-green-500 text-white text-xs rounded-lg hover:bg-green-600 transition-colors">
                                             Book Now
                                         </button>
                                     </div>
@@ -570,16 +579,16 @@ const CustomerDashboard: React.FC = () => {
                                     className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-lg ${transaction.status === 'completed' ? 'bg-success-bg' :
-                                            transaction.status === 'pending' ? 'bg-warning-bg' :
-                                                'bg-error-bg'
+                                        <div className={`p-2 rounded-lg ${transaction.status === 'completed' ? 'bg-green-100' :
+                                            transaction.status === 'pending' ? 'bg-yellow-100' :
+                                                'bg-red-100'
                                             }`}>
                                             {transaction.status === 'completed' ? (
-                                                <CheckCircle className="h-4 w-4 text-success" />
+                                                <CheckCircle className="h-4 w-4 text-green-600" />
                                             ) : transaction.status === 'pending' ? (
-                                                <Clock className="h-4 w-4 text-warning" />
+                                                <Clock className="h-4 w-4 text-yellow-600" />
                                             ) : (
-                                                <XCircle className="h-4 w-4 text-error" />
+                                                <XCircle className="h-4 w-4 text-red-600" />
                                             )}
                                         </div>
                                         <div>
@@ -662,8 +671,8 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, change, t
                         {change && (
                             <div className="flex items-center gap-1 mt-2">
                                 <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full ${trend === 'up'
-                                    ? 'bg-success-bg text-success'
-                                    : 'bg-error-bg text-error'
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-red-100 text-red-700'
                                     }`}>
                                     {change}
                                 </span>
@@ -680,7 +689,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, change, t
     );
 };
 
-// Quick Action Button - FIXED with proper gradient colors
+// Quick Action Button
 const QuickActionButton: React.FC<QuickActionButtonProps> = ({ icon: Icon, text, color }) => {
     const colors = {
         primary: 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700',

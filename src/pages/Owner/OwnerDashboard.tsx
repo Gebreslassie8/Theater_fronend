@@ -3,11 +3,25 @@ import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    Users, Building, DollarSign, Activity, Crown,
-    Calendar, Ticket, Star, TrendingUp, Package, Clock, MapPin,
-    UserPlus, CheckCircle, Eye, Edit, Download,
-    Filter, CreditCard, Printer, Film,
-    RotateCcw, UserCheck, Map
+    Users,
+    Building,
+    DollarSign,
+    Activity,
+    Crown,
+    Calendar,
+    Ticket,
+    Star,
+    TrendingUp,
+    Clock,
+    MapPin,
+    Eye,
+    Edit,
+    Download,
+    Filter,
+    Printer,
+    Film,
+    RotateCcw,
+    CheckCircle
 } from 'lucide-react';
 import {
     BarChart, Bar, PieChart as RePieChart, Pie,
@@ -185,9 +199,9 @@ const OwnerDashboard: React.FC = () => {
         { month: 'Apr', revenue: 45200, tickets: 2150, occupancy: 78 },
         { month: 'May', revenue: 48500, tickets: 2320, occupancy: 80 },
         { month: 'Jun', revenue: 52300, tickets: 2510, occupancy: 82 },
-        { month: 'Jan', revenue: 38500, tickets: 1850, occupancy: 72 },
-        { month: 'August', revenue: 41200, tickets: 1980, occupancy: 74 },
-        { month: 'Sept', revenue: 39800, tickets: 1910, occupancy: 73 },
+        { month: 'Jul', revenue: 38500, tickets: 1850, occupancy: 72 },
+        { month: 'Aug', revenue: 41200, tickets: 1980, occupancy: 74 },
+        { month: 'Sep', revenue: 39800, tickets: 1910, occupancy: 73 },
         { month: 'Oct', revenue: 45200, tickets: 2150, occupancy: 78 },
         { month: 'Nov', revenue: 48500, tickets: 2320, occupancy: 80 },
         { month: 'Dec', revenue: 52300, tickets: 2510, occupancy: 82 },
