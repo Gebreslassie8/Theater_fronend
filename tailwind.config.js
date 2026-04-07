@@ -7,32 +7,39 @@ export default {
   theme: {
     extend: {
       colors: {
+        // --- Core Brand & Layout ---
+        theater: '#0f172a',      // Dark Mode Background / Sidebar
+        dark: '#0f172a',         // Headings / Dark Neutral
+        light: '#f8fafc',        // Main Page Background
+        lightGray: '#f8f9fa',    // Soft Borders / Subtle Backgrounds
+        smokyGray: '#6c757d',    // Subtitles / Secondary Text
+        mediumGray: '#6c757d',   // Tertiary elements
 
-        theater: '#0f172a',   // dark background 🌙
+        // --- Main Actions (Buttons) ---
+        primary: '#007590',      // deepTeal: Best for "Add", "Book", "Submit"
+        secondary: '#17304F',    // deepBlue: Best for "View Details", "Filter"
 
-        // Prisma-style Status Colors
-        success: '#22c55e',
-        info: '#06b6d4',
-        warning: '#facc15',
-        error: '#ef444dff',
+        // --- Prisma-style Status Colors (Badges/Alerts) ---
+        success: {
+          DEFAULT: '#22c55e',
+          bg: '#dcfce7',
+        },
+        info: {
+          DEFAULT: '#06b6d4',
+          bg: '#cffafe',
+        },
+        warning: {
+          DEFAULT: '#facc15',
+          bg: '#fef9c3',
+        },
+        error: {
+          DEFAULT: '#ef4444',
+          bg: '#fee2e2',
+        },
 
-        // 🎨 Background Variants
-        'success-bg': '#dcfce7',
-        'info-bg': '#cffafe',
-        'warning-bg': '#fef9c3',
-        'error-bg': '#fee2e2',
-
-        // 🧠 Neutral
-        dark: '#0f172a',
-        light: '#f8fafc',
-
-        // Custom colors from your app
+        // --- Aliases for consistency ---
         deepTeal: '#007590',
         deepBlue: '#17304F',
-        smokyGray: '#6c757d',
-        lightGray: '#f8f9fa',
-        mediumGray: '#6c757d',
-        // skyTeal removed as requested
       }
     },
   },

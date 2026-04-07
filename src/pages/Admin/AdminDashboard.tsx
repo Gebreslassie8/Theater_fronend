@@ -266,7 +266,7 @@ const AdminDashboard: React.FC = () => {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="space-y-8 lg:ml-64"
+            className="space-y-8 p-6"
         >
             {/* Welcome Header */}
             <motion.div
@@ -310,7 +310,7 @@ const AdminDashboard: React.FC = () => {
                     </motion.div>
 
                     <motion.h1
-                        className="text-4xl font-bold mb-2 text-center"
+                        className="text-4xl font-bold mb-2"
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.4 }}
@@ -319,7 +319,7 @@ const AdminDashboard: React.FC = () => {
                     </motion.h1>
 
                     <motion.p
-                        className="text-white/80 text-lg max-w-2xl"
+                        className="text-white/80 text-lg"
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: 0.5 }}

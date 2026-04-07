@@ -241,9 +241,8 @@ const Navbar: React.FC = () => {
                                 {/* Join Now - Mobile (Prominent) */}
                                 <Link
                                     to="/account"
-                                    className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-md hover:shadow-lg transition"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
+                                    className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-deepBlue text-white shadow-md hover:brightness-110 hover:shadow-lg transition-all duration-300"
+                                    onClick={() => setIsMenuOpen(false)}                                >
                                     <UserPlus className="h-5 w-5" />
                                     <span className="font-medium font-semibold">Join Now</span>
                                 </Link>

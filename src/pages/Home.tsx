@@ -796,8 +796,8 @@ const Home = () => {
                                         key={idx}
                                         onClick={() => setNowShowingStartIndex(idx * cardsPerPage)}
                                         className={`h-2 rounded-full transition-all ${Math.floor(nowShowingStartIndex / cardsPerPage) === idx
-                                                ? 'w-8 bg-deepTeal'
-                                                : 'w-2 bg-gray-300 dark:bg-dark-600 hover:bg-deepTeal/50'
+                                            ? 'w-8 bg-deepTeal'
+                                            : 'w-2 bg-gray-300 dark:bg-dark-600 hover:bg-deepTeal/50'
                                             }`}
                                     />
                                 ))}
@@ -875,8 +875,8 @@ const Home = () => {
                                         key={idx}
                                         onClick={() => setUpcomingStartIndex(idx * cardsPerPage)}
                                         className={`h-2 rounded-full transition-all ${Math.floor(upcomingStartIndex / cardsPerPage) === idx
-                                                ? 'w-8 bg-deepTeal'
-                                                : 'w-2 bg-gray-300 dark:bg-dark-600 hover:bg-deepTeal/50'
+                                            ? 'w-8 bg-deepTeal'
+                                            : 'w-2 bg-gray-300 dark:bg-dark-600 hover:bg-deepTeal/50'
                                             }`}
                                     />
                                 ))}
@@ -892,35 +892,6 @@ const Home = () => {
                     </div>
                 )}
 
-                {/* Newsletter Section */}
-                {filteredShows.length > 0 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="mt-16 bg-gradient-to-r from-deepTeal to-teal-600 rounded-2xl p-8 text-center"
-                    >
-                        <div className="max-w-2xl mx-auto">
-                            <h3 className="text-2xl font-bold text-white mb-2">Stay Updated</h3>
-                            <p className="text-white/80 mb-6">
-                                Get the latest updates on new shows, exclusive offers, and early bird discounts
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <input
-                                    type="email"
-                                    placeholder="Enter your email"
-                                    className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white"
-                                />
-                                <button className="px-6 py-3 bg-white text-deepTeal rounded-lg font-medium hover:shadow-lg transition-all">
-                                    Subscribe
-                                </button>
-                            </div>
-                            <p className="text-white/60 text-xs mt-4">
-                                No spam, unsubscribe anytime
-                            </p>
-                        </div>
-                    </motion.div>
-                )}
             </div>
         </div>
     );

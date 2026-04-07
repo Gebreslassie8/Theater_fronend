@@ -299,7 +299,7 @@ const ShowCard: React.FC<ShowCardProps> = ({ show, compact = false }) => {
                 className="mt-3 w-full bg-gradient-to-r from-deepTeal to-deepTeal/90 text-white px-3 py-2 rounded-lg font-medium shadow-md shadow-deepTeal/30 hover:shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
               >
                 <Ticket className="h-3.5 w-3.5" />
-                <span>Pre-book Now</span>
+                <span>book Now</span>
                 <ChevronRight className="h-3.5 w-3.5" />
               </motion.button>
             )}

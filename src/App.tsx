@@ -1,6 +1,5 @@
 // import React, { useEffect, useState } from 'react';
 // import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-// import api from './services/api';
 // import MainLayout from './layouts/MainLayout';
 // import Login from "./components/auth/Login";
 // import ForgotPassword from "./components/auth/Forgotpassword";
@@ -244,12 +243,24 @@ import BookingConfirmation from './pages/Legal/BookingConfirmation';
 import TermsOfService from './pages/Legal/TermsOfService';
 import PrivacyPolicy from './pages/Legal/PrivacyPolicy';
 import CookiePolicy from './pages/Legal/CookiePolicy';
-// Dashboard pages
+
+// admin Dashboard pages
 import AdminDashboard from "./pages/Admin/AdminDashboard";
+import UserManagement from './pages/Admin/users/UserManagement';
+import AddNewUser from './pages/Admin/users/AddNewUser';
+import DeactivatedUsers from './pages/Admin/users/DeactivatedUsers';
+import ActivityLogs from './pages/Admin/users/ActivityLogs';
+// Add this import
+import RolesAndPermissions from './pages/Admin/users/RolesAndPermissions';
+// Owner Dashboard pages
 import OwnerDashboard from "./pages/Owner/OwnerDashboard";
+// mananger Dashboard pages
 import ManagerDashboard from "./pages/Manager/ManagerDashboard";
+// sales Dashboard pages
 import SalesDashboard from "./pages/Salesperson/SalesDashboard";
+// scanner Dashboard pages
 import ScannerDashboard from './pages/QR Scanner/ScannerDashboard';
+// customer Dashboard pages
 import CustomerDashboard from './pages/Customer/CustomerDashboard';
 
 // Protected Route Component
@@ -323,7 +334,6 @@ function App() {
 
   console.log('Current path:', location.pathname);
 
-  // Server is connected - show the actual app with routes
   return (
     <Routes>
       {/* Public routes - accessible to everyone */}
@@ -335,16 +345,11 @@ function App() {
         <Route path="help" element={<Help />} />
         <Route path="contact" element={<Contact />} />
         <Route path="account" element={<TheaterRegistration />} />
-        {/* for footer information  */}
+        {/* for footer information */}
         <Route path="booking" element={<BookingConfirmation />} />
         <Route path="terms" element={<TermsOfService />} />
         <Route path="privacy" element={<PrivacyPolicy />} />
         <Route path="cookies" element={<CookiePolicy />} />
-
-
-
-
-
       </Route>
 
       {/* Auth routes - only accessible when NOT logged in */}
@@ -365,81 +370,113 @@ function App() {
         }
       />
 
-      {/* Admin Routes */}
+      {/* Admin Routes - USE RELATIVE PATHS */}
       <Route
-        path="/admin/*"
+        path="/admin"
+
+        // Add these routes inside admin routes
+
         element={
           <ProtectedRoute allowedRoles={['admin']}>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<AdminDashboard />} />
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="users/all" element={<UserManagement />} />
+        <Route path="users/add" element={< AddNewUser />} />
+        <Route path="users/roles" element={<RolesAndPermissions />} />
+        <Route path="users/deactivated" element={<DeactivatedUsers />} />
+        <Route path="users/activity-logs" element={<ActivityLogs />} />
+        <Route path="wallet" element={<AdminDashboard />} />
+        <Route path="wallet/balance" element={<AdminDashboard />} />
+        <Route path="wallet/transactions" element={<AdminDashboard />} />
+        <Route path="financial" element={<AdminDashboard />} />
+        <Route path="financial/revenue" element={<AdminDashboard />} />
+        <Route path="theater-accounts" element={<AdminDashboard />} />
+        <Route path="registration" element={<AdminDashboard />} />
+        <Route path="monitoring" element={<AdminDashboard />} />
+        <Route path="security" element={<AdminDashboard />} />
       </Route>
 
       {/* Theater Owner Routes */}
       <Route
-        path="/owner/*"
+        path="/owner"
         element={
           <ProtectedRoute allowedRoles={['theater_owner', 'admin']}>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<OwnerDashboard />} />
+        <Route index element={<Navigate to="/owner/dashboard" replace />} />
         <Route path="dashboard" element={<OwnerDashboard />} />
+        <Route path="financial" element={<OwnerDashboard />} />
+        <Route path="wallet" element={<OwnerDashboard />} />
+        <Route path="events" element={<OwnerDashboard />} />
+        <Route path="halls" element={<OwnerDashboard />} />
       </Route>
 
       {/* Theater Manager Routes */}
       <Route
-        path="/manager/*"
+        path="/manager"
         element={
           <ProtectedRoute allowedRoles={['manager', 'theater_owner', 'admin']}>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<ManagerDashboard />} />
+        <Route index element={<Navigate to="/manager/dashboard" replace />} />
         <Route path="dashboard" element={<ManagerDashboard />} />
+        <Route path="events" element={<ManagerDashboard />} />
+        <Route path="halls" element={<ManagerDashboard />} />
+        <Route path="inventory" element={<ManagerDashboard />} />
       </Route>
 
       {/* Salesperson Routes */}
       <Route
-        path="/sales/*"
+        path="/sales"
         element={
           <ProtectedRoute allowedRoles={['salesperson', 'manager', 'theater_owner', 'admin']}>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<SalesDashboard />} />
+        <Route index element={<Navigate to="/sales/dashboard" replace />} />
         <Route path="dashboard" element={<SalesDashboard />} />
+        <Route path="events" element={<SalesDashboard />} />
+        <Route path="seats" element={<SalesDashboard />} />
+        <Route path="payments" element={<SalesDashboard />} />
       </Route>
 
       {/* Scanner Routes */}
       <Route
-        path="/scanner/*"
+        path="/scanner"
         element={
           <ProtectedRoute allowedRoles={['scanner', 'manager', 'theater_owner', 'admin']}>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<ScannerDashboard />} />
+        <Route index element={<Navigate to="/scanner/dashboard" replace />} />
         <Route path="dashboard" element={<ScannerDashboard />} />
+        <Route path="validate" element={<ScannerDashboard />} />
+        <Route path="checkin" element={<ScannerDashboard />} />
+        <Route path="stats" element={<ScannerDashboard />} />
+        <Route path="gates" element={<ScannerDashboard />} />
       </Route>
 
       {/* Customer Routes */}
       <Route
-        path="/customer/*"
+        path="/customer"
         element={
           <ProtectedRoute allowedRoles={['customer']}>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<CustomerDashboard />} />
+        <Route index element={<Navigate to="/customer/dashboard" replace />} />
         <Route path="dashboard" element={<CustomerDashboard />} />
         <Route path="wallet" element={<CustomerDashboard />} />
         <Route path="my-tickets" element={<CustomerDashboard />} />
@@ -448,7 +485,7 @@ function App() {
 
       {/* Redirect any unknown routes to home */}
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    </Routes >
   );
 }
 

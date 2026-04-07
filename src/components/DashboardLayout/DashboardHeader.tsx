@@ -71,12 +71,12 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
   const getRoleGradient = (role?: string): string => {
     const gradients: Record<string, string> = {
-      admin: "from-red-500 to-pink-500",
-      venue_manager: "from-blue-500 to-cyan-500",
-      theater_owner: "from-purple-500 to-violet-500",
-      user: "from-green-500 to-teal-500",
+      admin: "from-deepTeal to-pink-500",
+      venue_manager: "from-deepTeal to-pink-500",
+      theater_owner: "from-deepTeal to-pink-500",
+      user: "from-deepTeal to-pink-500",
     };
-    return gradients[role || ""] || "from-gray-500 to-slate-500";
+    return gradients[role || ""] || "from-deepTeal to-pink-500";
   };
 
   const getRoleLabel = (role?: string): string => {

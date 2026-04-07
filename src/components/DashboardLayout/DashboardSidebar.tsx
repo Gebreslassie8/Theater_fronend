@@ -104,7 +104,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         color: "from-blue-500 to-cyan-500",
         roles: ["admin"],
         items: [
-          { name: "Dashboard", to: "/admin/dashboard", icon: LayoutDashboard, color: "text-blue-500" },
+          { name: "Overview", to: "/admin/dashboard", icon: LayoutDashboard, color: "text-blue-500" },
         ]
       },
       {
@@ -116,12 +116,11 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           {
             name: "Manage Users", to: "/admin/users", icon: UsersRound, color: "text-purple-500",
             subItems: [
-              { name: "All Users", to: "/admin/users/all", icon: Users },
+              { name: "All Users", to: "/admin/users", icon: Users },
               { name: "Add New User", to: "/admin/users/add", icon: UserPlusIcon },
               { name: "Roles & Permissions", to: "/admin/users/roles", icon: UserCog },
-              { name: "Pending Approvals", to: "/admin/users/pending", icon: Clock },
               { name: "Deactivated Users", to: "/admin/users/deactivated", icon: UserX },
-              { name: "Activity Logs", to: "/admin/users/activity", icon: Activity }
+              { name: "Activity Logs", to: "/admin/users/activity-logs", icon: Activity }
             ]
           }
         ]
@@ -165,13 +164,13 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             subItems: [
               { name: "Create Account", to: "/admin/theater-accounts/create", icon: UserPlus },
               { name: "View All", to: "/admin/theater-accounts", icon: Users },
-              { name: "Pending Approval", to: "/admin/theater-accounts/pending", icon: Clock },
               { name: "Deactivate", to: "/admin/theater-accounts/deactivate", icon: UserMinus }
             ]
           },
           {
             name: "Registration Requests", to: "/admin/registration", icon: FileCheck, color: "text-emerald-500",
             subItems: [
+              { name: "Pending Approval", to: "/admin/theater-accounts/pending", icon: Clock },
               { name: "Approve", to: "/admin/registration/approve", icon: CheckCircle },
               { name: "Reject", to: "/admin/registration/reject", icon: XCircle },
               { name: "View Documents", to: "/admin/registration/documents", icon: FileText }
@@ -250,7 +249,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         color: "from-blue-500 to-cyan-500",
         roles: ["manager"],
         items: [
-          { name: "Dashboard", to: "/manager/dashboard", icon: LayoutDashboard, color: "text-blue-500" },
+          { name: "Overview", to: "/manager/dashboard", icon: LayoutDashboard, color: "text-blue-500" },
           {
             name: "Events Schedule", to: "/manager/events", icon: Calendar, color: "text-purple-500",
             subItems: [
@@ -282,7 +281,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         color: "from-green-500 to-emerald-500",
         roles: ["salesperson"],
         items: [
-          { name: "Dashboard", to: "/sales/dashboard", icon: LayoutDashboard, color: "text-green-500" },
+          { name: "Overview", to: "/sales/dashboard", icon: LayoutDashboard, color: "text-green-500" },
           {
             name: "Event Browser", to: "/sales/events", icon: Search, color: "text-purple-500",
             subItems: [
@@ -314,7 +313,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         color: "from-rose-500 to-pink-500",
         roles: ["customer"],
         items: [
-          { name: "Home", to: "/", icon: Home, color: "text-rose-500" },
+          { name: "Overview", to: "/", icon: Home, color: "text-rose-500" },
           {
             name: "Search Events", to: "/search", icon: Search, color: "text-purple-500",
             subItems: [
@@ -445,24 +444,22 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         />
       )}
 
-      {/* Sidebar Container - No Dark Mode Colors */}
+      {/* Sidebar Container */}
       <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-200 transform transition-all duration-500 ease-out lg:translate-x-0 lg:static lg:h-full shadow-xl ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="h-full flex flex-col">
 
           {/* Header Section */}
-          <div className="flex-shrink-0 p-5  border-gray-200 bg-white">
+          <div className="flex-shrink-0 p-5 border-gray-200 bg-white">
             <div className="flex items-center justify-between">
-              {/* Logo with Image Only */}
+              {/* Logo */}
               <div className="flex items-center gap-3">
-                {/* Logo Image */}
-                <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md">
+                <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md bg-gradient-to-br from-deepTeal to-deepBlue flex items-center justify-center">
                   <img
                     src="/logo.png"
-                    alt="TheaterHUB Logo"
+                    alt="TheaterHUB"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233B82F6'%3E%3Cpath d='M3 10h18M6 14h12M10 18h4'/%3E%3Crect x='4' y='4' width='16' height='16' rx='2'/%3E%3C/svg%3E";
+                      e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M3 10h18M6 14h12M10 18h4'/%3E%3Crect x='4' y='4' width='16' height='16' rx='2'/%3E%3C/svg%3E";
                     }}
                   />
                 </div>
@@ -520,7 +517,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                           className={({ isActive }) => {
                             const baseClasses = "flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-300 cursor-pointer w-full";
                             const activeClasses = isActive
-                              ? "bg-emerald-50 border-l-4 border-emerald-500"
+                              ? "bg-deepTeal/10 border-l-4 border-deepTeal"
                               : "hover:bg-gray-100 border-l-4 border-transparent";
 
                             return `${baseClasses} ${activeClasses}`;
@@ -530,12 +527,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                             <>
                               {/* Left side - Icon and Label */}
                               <div className="flex items-center gap-3 flex-1 min-w-0">
-                                <div className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? "bg-emerald-100" : "group-hover:bg-gray-200"}`}>
+                                <div className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? "bg-deepTeal/20" : "group-hover:bg-gray-200"}`}>
                                   {React.createElement(item.icon as React.ElementType, {
-                                    className: `h-4 w-4 ${item.color || (isActive ? "text-emerald-600" : "text-gray-500")}`
+                                    className: `h-4 w-4 ${item.color || (isActive ? "text-deepTeal" : "text-gray-500")}`
                                   })}
                                 </div>
-                                <span className={`text-sm font-medium truncate ${isActive ? "text-emerald-600 font-semibold" : "text-gray-700"}`}>
+                                <span className={`text-sm font-medium truncate ${isActive ? "text-deepTeal font-semibold" : "text-gray-700"}`}>
                                   {item.name}
                                 </span>
                               </div>
@@ -543,7 +540,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                               {/* Right side - Badge and Chevron */}
                               <div className="flex items-center gap-1.5">
                                 {item.subItems && item.subItems.length > 0 && (
-                                  <span className="text-xs font-medium bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                                  <span className="text-xs font-medium bg-deepTeal/10 text-deepTeal px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
                                     {item.subItems.length}
                                   </span>
                                 )}
@@ -566,7 +563,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                 className={({ isActive }) => {
                                   const baseClasses = "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-300 w-full";
                                   const activeClasses = isActive
-                                    ? "bg-emerald-50 text-emerald-600 border-l-2 border-emerald-500"
+                                    ? "bg-deepTeal/10 text-deepTeal border-l-2 border-deepTeal"
                                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-100";
 
                                   return `${baseClasses} ${activeClasses}`;
@@ -592,16 +589,16 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             </div>
           </div>
 
-          {/* Footer - Logout Area - Icon on LEFT side */}
+          {/* Footer - Logout Area */}
           <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
             <NavLink
               to="/logout"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 hover:bg-amber-50 group w-full"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 hover:bg-red-50 group w-full"
             >
-              <div className="p-1.5 rounded-lg bg-amber-100 group-hover:bg-amber-200 transition-all">
-                <LogOut className="h-4 w-4 text-amber-600" />
+              <div className="p-1.5 rounded-lg bg-red-100 group-hover:bg-red-200 transition-all">
+                <LogOut className="h-4 w-4 text-red-600" />
               </div>
-              <span className="text-sm font-medium text-gray-700 group-hover:text-amber-600 transition-colors">
+              <span className="text-sm font-medium text-gray-700 group-hover:text-red-600 transition-colors">
                 Sign Out
               </span>
             </NavLink>
@@ -644,11 +641,11 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           border-radius: 10px;
         }
         .sidebar-scrollbar::-webkit-scrollbar-thumb {
-          background: #c56b22;
+          background: #cbd5e1;
           border-radius: 10px;
         }
         .sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #a0521a;
+          background: #94a3b8;
         }
       `}</style>
     </>
