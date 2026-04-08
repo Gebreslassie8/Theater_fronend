@@ -287,7 +287,20 @@ import UserManagement from './pages/Admin/users/UserManagement';
 // import AddNewUser from './pages/Admin/users/AddUser';
 import DeactivatedUsers from './pages/Admin/users/DeactivatedUsers';
 import ActivityLogs from './pages/Admin/users/ActivityLogs';
+<<<<<<< HEAD
+=======
+import WalletBalance from './pages/Admin/wallet/WalletBalance';
+import TransactionHistory from './pages/Admin/wallet/TransactionHistory';
+import DepositFunds from './pages/Admin/wallet/DepositFunds';
+import WithdrawFunds from './pages/Admin/wallet/WithdrawFunds';
+import PaymentMethods from './pages/Admin/wallet/PaymentMethods';
+import BankAccounts from './pages/Admin/wallet/BankAccounts';
+import Commission from './pages/Admin/wallet/Commission';
+import FinancialReports from './pages/Admin/financial/FinancialReports';
+import RegistrationRequests from './pages/Admin/registration/RegistrationRequests';
+
 // Add this import
+>>>>>>> 5517c3c134029f2c202ffc5220fc1afe6caa2637
 import RolesAndPermissions from './pages/Admin/users/RolesAndPermissions';
 
 // Owner Dashboard pages
@@ -411,9 +424,11 @@ function App() {
       {/* Admin Routes */}
       <Route
         path="/admin"
+<<<<<<< HEAD
+=======
 
         // Add these routes inside admin routes
-
+>>>>>>> 5517c3c134029f2c202ffc5220fc1afe6caa2637
         element={
           <ProtectedRoute allowedRoles={['admin']}>
             <DashboardLayout />
@@ -424,7 +439,11 @@ function App() {
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="users" element={<UserManagement />} />
         <Route path="users/all" element={<UserManagement />} />
-        <Route path="users/add" element={< AddNewUser />} />
+<<<<<<< HEAD
+        <Route path="users/add" element={<AddNewUser />} />
+=======
+        {/* <Route path="users/add" element={< AddNewUser />} /> */}
+>>>>>>> 5517c3c134029f2c202ffc5220fc1afe6caa2637
         <Route path="users/roles" element={<RolesAndPermissions />} />
         <Route path="users/deactivated" element={<DeactivatedUsers />} />
         <Route path="users/activity-logs" element={<ActivityLogs />} />
