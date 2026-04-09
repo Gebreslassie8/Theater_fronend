@@ -1,33 +1,58 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Calendar, Ticket, Users, Building,
-  BarChart3, Settings, DollarSign, Star, MessageSquare,
-  FileText, Shield, Home, X, Sparkles, Tag, Headphones,
-  Award, Package, CreditCard, Wallet, TrendingUp, Bell,
-  ShieldCheck, LifeBuoy, Zap, Video, Music, Film, Camera,
-  Megaphone, Mail, MessageCircle, Share2, UserCheck, Trophy,
-  Bookmark, MapPin, CalendarDays, WalletCards, Activity, Crown,
-  Globe, UserPlus, UserMinus, CheckCircle, XCircle, Receipt,
-  ClipboardCheck, QrCode, Printer, Search, Filter, Eye, EyeOff,
-  Lock, Unlock, Key, ShoppingCart, Map, Navigation, Monitor,
-  FileBarChart, AlertCircle, CheckSquare, LogOut, Upload,
-  Download, FileCheck, ScanLine, DoorOpen, BadgeCheck,
-  AlertTriangle, FileSearch, PieChart, BarChart, LineChart,
-  ChevronDown, ChevronUp, Percent, MousePointer,
-  Phone, Target, HelpCircle, Info, ExternalLink, Link, Share,
-  Copy, Scissors, Maximize2, Minimize2, ZoomIn, ZoomOut, Move,
-  ArrowRightCircle, Ban, AlertOctagon,
-  Heart, Palette, Flag, Coffee, User, ChevronRight,
-  Clock, History, RefreshCw, RotateCcw, PlusCircle, MinusCircle,
-  Edit, Trash2, Grid, List, Layout, LayoutIcon,
-  Wifi, ShieldAlert, KeyRound, Database, Server,
-  Network, Cpu, HardDrive, Coins, PiggyBank, Banknote,
-  Landmark, CreditCard as CreditCardIcon, ReceiptText,
-  Wallet as WalletIcon, TrendingDown, UserCog, UserCircle,
-  UsersRound, UserX, UserPlus as UserPlusIcon, UserCheck as UserCheckIcon,
-  Briefcase, Store, TicketCheck, QrCode as QrCodeIcon, ScanLine as ScanLineIcon,
-  Scan, Smartphone, QrCode as QrCodeScanner
+  LayoutDashboard,
+  Users,
+  Building,
+  Settings,
+  DollarSign,
+  Activity,
+  ShieldCheck,
+  LogOut,
+  X,
+  ChevronRight,
+  UsersRound,
+  UserCog,
+  UserX,
+  Wallet as WalletIcon,
+  Coins,
+  ReceiptText,
+  Percent,
+  Banknote,
+  TrendingDown,
+  Landmark,
+  TrendingUp,
+  Calendar,
+  CalendarDays,
+  FileText,
+  Heart,
+  BarChart3,
+  Key,
+  Lock,
+  ClipboardCheck,
+  UserPlus,
+  Ban,
+  Crown,
+  Ticket,
+  Package,
+  Coffee,
+  Search,
+  Map,
+  MousePointer,
+  CreditCard,
+  Home,
+  MapPin,
+  Film,
+  Download,
+  QrCode,
+  PlusCircle,
+  Edit,
+  Trash2,
+  CheckCircle,
+  DoorOpen,
+  Scan,
+  Clock,
+  Globe
 } from "lucide-react";
 import { FaChair, FaKeyboard, FaGripHorizontal, FaMobileAlt } from "react-icons/fa";
 
@@ -53,14 +78,6 @@ interface NavigationItem {
   subItems?: SubItem[];
 }
 
-interface NavigationGroup {
-  name: string;
-  icon: React.ElementType | IconType;
-  color: string;
-  roles: string[];
-  items: NavigationItem[];
-}
-
 interface DashboardSidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -81,8 +98,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   useEffect(() => {
     const newExpanded: ExpandedItemsState = {};
     const groups = getNavigationForRole(userRole);
-    groups.forEach((group) => {
-      group.items.forEach((item) => {
+    groups.forEach((group: any) => {
+      group.items.forEach((item: NavigationItem) => {
         if (item.subItems) {
           const isActive = item.subItems.some(subItem => location.pathname === subItem.to);
           const isParentActive = location.pathname === item.to;
@@ -95,87 +112,53 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     setExpandedItems(prev => ({ ...prev, ...newExpanded }));
   }, [location.pathname, userRole]);
 
-  const getNavigationForRole = (role: string): NavigationGroup[] => {
-    const allNavigationGroups: NavigationGroup[] = [
-      // ==================== ADMIN ONLY ====================
+  const getNavigationForRole = (role: string): any[] => {
+    const allNavigationGroups: any[] = [
+      // ==================== ADMIN ONLY - NO HEADER SCRIPT ====================
       {
-        name: "System",
-        icon: Settings,
-        color: "from-blue-500 to-cyan-500",
+        // No name, icon, color - removed "System" header
         roles: ["admin"],
         items: [
           { name: "Overview", to: "/admin/dashboard", icon: LayoutDashboard, color: "text-blue-500" },
-        ]
-      },
-      {
-        name: "User Management",
-        icon: Users,
-        color: "from-purple-500 to-pink-500",
-        roles: ["admin"],
-        items: [
           {
             name: "Manage Users", to: "/admin/users", icon: UsersRound, color: "text-purple-500",
             subItems: [
-              { name: "All Users", to: "/admin/users", icon: Users },
+              { name: "All Users", to: "/admin/users", icon: UsersRound },
               { name: "Roles & Permissions", to: "/admin/users/roles", icon: UserCog },
               { name: "Deactivated Users", to: "/admin/users/deactivated", icon: UserX },
               { name: "Activity Logs", to: "/admin/users/activity-logs", icon: Activity }
             ]
-          }
-        ]
-      },
-      {
-        name: "Financial",
-        icon: DollarSign,
-        color: "from-emerald-500 to-green-500",
-        roles: ["admin"],
-        items: [
+          },
           {
-            name: "System Wallet", to: "/admin/wallet", icon: WalletIcon, color: "text-emerald-500",
+            name: "Manage Wallet Balance", to: "/admin/wallet", icon: WalletIcon, color: "text-emerald-500",
             subItems: [
               { name: "Wallet Balance", to: "/admin/wallet/balance", icon: Coins },
               { name: "Transaction History", to: "/admin/wallet/transactions", icon: ReceiptText },
+              { name: "Commission & Fees System", to: "/admin/wallet/commission", icon: Percent },
               { name: "Deposit Funds", to: "/admin/wallet/deposit", icon: Banknote },
               { name: "Withdraw Funds", to: "/admin/wallet/withdraw", icon: TrendingDown },
-              { name: "Payment Methods", to: "/admin/wallet/payment-methods", icon: CreditCardIcon },
-              { name: "Bank Accounts", to: "/admin/wallet/bank-accounts", icon: Landmark },
-              { name: "Commission & Fees System", to: "/admin/wallet/Commission", icon: Percent }
+              { name: "Bank Accounts", to: "/admin/wallet/bank-accounts", icon: Landmark }
             ]
           },
           {
-            name: "Financial Reports", to: "/admin/financial", icon: TrendingUp, color: "text-green-500",
+            name: "Financial Analytics", to: "/admin/financial", icon: TrendingUp, color: "text-green-500",
             subItems: [
               { name: "Revenue Overview", to: "/admin/financial/revenue", icon: TrendingUp },
               { name: "Daily Reports", to: "/admin/financial/daily", icon: Calendar },
               { name: "Monthly Reports", to: "/admin/financial/monthly", icon: CalendarDays },
               { name: "Tax Reports", to: "/admin/financial/tax", icon: FileText }
             ]
-          }
-        ]
-      },
-      {
-        name: "Administrator",
-        icon: Shield,
-        color: "from-indigo-500 to-blue-500",
-        roles: ["admin"],
-        items: [
-          {
-            name: "Theater Accounts", to: "/admin/theater-accounts", icon: Building, color: "text-indigo-500",
-            subItems: [
-              { name: "Create Account", to: "/admin/theater-accounts/create", icon: UserPlus },
-              { name: "View All", to: "/admin/theater-accounts", icon: Users },
-              { name: "Deactivate", to: "/admin/theater-accounts/deactivate", icon: UserMinus }
-            ]
           },
           {
-            name: "Registration Requests", to: "/admin/registration", icon: FileCheck, color: "text-emerald-500",
+            name: "Management Theaters", to: "/admin/theaters", icon: Building, color: "text-indigo-500",
             subItems: [
-              { name: "Pending Approval", to: "/admin/theater-accounts/pending", icon: Clock },
-              { name: "Approve", to: "/admin/registration/approve", icon: CheckCircle },
-              { name: "Reject", to: "/admin/registration/reject", icon: XCircle },
-              { name: "View Documents", to: "/admin/registration/documents", icon: FileText }
+              { name: "All Theaters", to: "/admin/theaters/theaters", icon: Building },
+              { name: "Registration Requests", to: "/admin/theaters/Requests", icon: Ban },
+              { name: "View All", to: "/admin/theaters/all", icon: Users },
+              { name: "Deactivate Theaters", to: "/admin/theaters/deactivated", icon: Ban }
             ]
           },
+
           {
             name: "System Monitoring", to: "/admin/monitoring", icon: Activity, color: "text-cyan-500",
             subItems: [
@@ -219,7 +202,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               { name: "Transaction History", to: "/owner/wallet/transactions", icon: ReceiptText },
               { name: "Deposit Funds", to: "/owner/wallet/deposit", icon: Banknote },
               { name: "Withdraw Funds", to: "/owner/wallet/withdraw", icon: TrendingDown },
-              { name: "Payment Methods", to: "/owner/wallet/payment-methods", icon: CreditCardIcon },
+              { name: "Payment Methods", to: "/owner/wallet/payment-methods", icon: CreditCard },
               { name: "Bank Accounts", to: "/owner/wallet/bank-accounts", icon: Landmark }
             ]
           },
@@ -255,7 +238,6 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             subItems: [
               { name: "Daily Schedule", to: "/manager/events/daily", icon: Calendar },
               { name: "Create Event", to: "/manager/events/create", icon: PlusCircle }
-              
             ]
           },
           {
@@ -310,7 +292,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       // ==================== CUSTOMER ONLY ====================
       {
         name: "Customer",
-        icon: UserCheck,
+        icon: Users,
         color: "from-rose-500 to-pink-500",
         roles: ["customer"],
         items: [
@@ -344,7 +326,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       // ==================== SCANNER ONLY ====================
       {
         name: "Scanner",
-        icon: QrCodeScanner,
+        icon: QrCode,
         color: "from-slate-500 to-gray-500",
         roles: ["scanner"],
         items: [
@@ -377,7 +359,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             name: "Gate Management", to: "/scanner/gates", icon: DoorOpen, color: "text-orange-500",
             subItems: [
               { name: "Gate Status", to: "/scanner/gates/status", icon: Activity },
-              { name: "Assign Gate", to: "/scanner/gates/assign", icon: UserCheck },
+              { name: "Assign Gate", to: "/scanner/gates/assign", icon: Users },
               { name: "Gate Logs", to: "/scanner/gates/logs", icon: FileText }
             ]
           }
@@ -409,28 +391,16 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     return roleNames[role] || "User";
   };
 
-  const getRoleAvatarColor = (role: string): string => {
-    const colors: Record<string, string> = {
-      admin: "from-blue-500 to-cyan-500",
-      theater_owner: "from-amber-500 to-orange-500",
-      manager: "from-blue-500 to-cyan-500",
-      salesperson: "from-green-500 to-emerald-500",
-      customer: "from-rose-500 to-pink-500",
-      scanner: "from-slate-500 to-gray-500"
-    };
-    return colors[role] || "from-gray-500 to-gray-500";
-  };
-
-  function getRoleIcon(role: string): React.ElementType | IconType {
-    const icons: Record<string, React.ElementType | IconType> = {
+  function getRoleIcon(role: string): React.ElementType {
+    const icons: Record<string, React.ElementType> = {
       admin: Settings,
       theater_owner: Crown,
       manager: Users,
       salesperson: Ticket,
-      customer: UserCheck,
-      scanner: QrCodeScanner
+      customer: Users,
+      scanner: QrCode
     };
-    return icons[role] || UserCheck;
+    return icons[role] || Settings;
   }
 
   const UserAvatarIcon = getRoleIcon(userRole);
@@ -454,7 +424,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             <div className="flex items-center justify-between">
               {/* Logo */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md bg-gradient-to-br from-deepTeal to-deepBlue flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md bg-gradient-to-br from-teal-600 to-blue-800 flex items-center justify-center">
                   <img
                     src="/logo.png"
                     alt="TheaterHUB"
@@ -487,22 +457,24 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           {/* Scrollable Navigation Area */}
           <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 sidebar-scrollbar">
             <div className="px-3 space-y-6">
-              {navigationGroups.map((group) => (
-                <div key={group.name} className="space-y-2">
-                  {/* Group Header */}
-                  <div className="flex items-center gap-2 px-3 py-1">
-                    <div className={`p-1.5 rounded-lg bg-gradient-to-r ${group.color}/10`}>
-                      <group.icon className={`h-3.5 w-3.5 bg-gradient-to-r ${group.color} bg-clip-text text-transparent`} />
+              {navigationGroups.map((group: any) => (
+                <div key={group.name || "admin-menu"} className="space-y-2">
+                  {/* Group Header - Only show if group has name */}
+                  {group.name && (
+                    <div className="flex items-center gap-2 px-3 py-1">
+                      <div className={`p-1.5 rounded-lg bg-gradient-to-r ${group.color}/10`}>
+                        <group.icon className={`h-3.5 w-3.5 bg-gradient-to-r ${group.color} bg-clip-text text-transparent`} />
+                      </div>
+                      <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        {group.name}
+                      </span>
                     </div>
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                      {group.name}
-                    </span>
-                  </div>
+                  )}
 
                   {/* Group Items */}
                   <div className="space-y-1">
-                    {group.items.map((item) => (
-                      <div key={`${group.name}-${item.name}`} className="space-y-0.5">
+                    {group.items.map((item: NavigationItem) => (
+                      <div key={`${group.name || "admin"}-${item.name}`} className="space-y-0.5">
                         {/* Main Navigation Item */}
                         <NavLink
                           to={item.to}
@@ -518,7 +490,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                           className={({ isActive }) => {
                             const baseClasses = "flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-300 cursor-pointer w-full";
                             const activeClasses = isActive
-                              ? "bg-deepTeal/10 border-l-4 border-deepTeal"
+                              ? "bg-teal-600/10 border-l-4 border-teal-600"
                               : "hover:bg-gray-100 border-l-4 border-transparent";
 
                             return `${baseClasses} ${activeClasses}`;
@@ -528,12 +500,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                             <>
                               {/* Left side - Icon and Label */}
                               <div className="flex items-center gap-3 flex-1 min-w-0">
-                                <div className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? "bg-deepTeal/20" : "group-hover:bg-gray-200"}`}>
+                                <div className={`p-1.5 rounded-lg transition-all duration-300 ${isActive ? "bg-teal-600/20" : "group-hover:bg-gray-200"}`}>
                                   {React.createElement(item.icon as React.ElementType, {
-                                    className: `h-4 w-4 ${item.color || (isActive ? "text-deepTeal" : "text-gray-500")}`
+                                    className: `h-4 w-4 ${item.color || (isActive ? "text-teal-600" : "text-gray-500")}`
                                   })}
                                 </div>
-                                <span className={`text-sm font-medium truncate ${isActive ? "text-deepTeal font-semibold" : "text-gray-700"}`}>
+                                <span className={`text-sm font-medium truncate ${isActive ? "text-teal-600 font-semibold" : "text-gray-700"}`}>
                                   {item.name}
                                 </span>
                               </div>
@@ -541,7 +513,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                               {/* Right side - Badge and Chevron */}
                               <div className="flex items-center gap-1.5">
                                 {item.subItems && item.subItems.length > 0 && (
-                                  <span className="text-xs font-medium bg-deepTeal/10 text-deepTeal px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                                  <span className="text-xs font-medium bg-teal-600/10 text-teal-600 px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
                                     {item.subItems.length}
                                   </span>
                                 )}
@@ -564,7 +536,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                 className={({ isActive }) => {
                                   const baseClasses = "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all duration-300 w-full";
                                   const activeClasses = isActive
-                                    ? "bg-deepTeal/10 text-deepTeal border-l-2 border-deepTeal"
+                                    ? "bg-teal-600/10 text-teal-600 border-l-2 border-teal-600"
                                     : "text-gray-600 hover:text-gray-900 hover:bg-gray-100";
 
                                   return `${baseClasses} ${activeClasses}`;

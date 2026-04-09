@@ -11,16 +11,16 @@ import WalletBalance from './wallet/WalletBalance';
 import TransactionHistory from './wallet/TransactionHistory';
 import DepositFunds from './wallet/DepositFunds';
 import WithdrawFunds from './wallet/WithdrawFunds';
-import PaymentMethods from './wallet/PaymentMethods';
 import BankAccounts from './wallet/BankAccounts';
 import Commission from './wallet/Commission';
 import FinancialReports from './financial/FinancialReports';
-import RegistrationRequests from './registration/RegistrationRequests';
+import TheaterManagement from './theateres/Theatermanagement';
+
 
 // Protected Route Component
-const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: string[] }> = ({ 
-  children, 
-  allowedRoles = [] 
+const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: string[] }> = ({
+  children,
+  allowedRoles = []
 }) => {
   const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
@@ -58,15 +58,10 @@ export const adminRouteElement = (
     <Route path="wallet/transactions" element={<TransactionHistory />} />
     <Route path="wallet/deposit" element={<DepositFunds />} />
     <Route path="wallet/withdraw" element={<WithdrawFunds />} />
-    <Route path="wallet/payment-methods" element={<PaymentMethods />} />
     <Route path="wallet/bank-accounts" element={<BankAccounts />} />
     <Route path="wallet/commission" element={<Commission />} />
     <Route path="financial/revenue" element={<FinancialReports />} />
-    <Route path="registration" element={<RegistrationRequests />} />
-    <Route path="registration/pending" element={<RegistrationRequests />} />
-    <Route path="registration/approve" element={<RegistrationRequests />} />
-    <Route path="registration/reject" element={<RegistrationRequests />} />
-    <Route path="registration/documents" element={<RegistrationRequests />} />
+    <Route path="theaters/theaters" element={<TheaterManagement />} />
     <Route path="monitoring" element={<AdminDashboard />} />
     <Route path="security" element={<AdminDashboard />} />
   </Route>
