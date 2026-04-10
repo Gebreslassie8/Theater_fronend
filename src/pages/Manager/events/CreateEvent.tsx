@@ -1,13 +1,19 @@
 // src/pages/Manager/components/events/CreateEvent.tsx
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
-  Calendar, Clock, MapPin, Users, DollarSign, Image, Save, X, 
-  Upload, AlertCircle, CheckCircle, FileText, Tag, Phone, 
-  Mail, Globe, Star, Award, Ticket, Coffee, Music, Film,
+  Calendar, Clock, Users, DollarSign, Image, X, 
+  Upload, AlertCircle, CheckCircle, FileText, Phone, 
+  Mail, Globe, Star, Award, Ticket, Music, Film,
   Trash2, Eye, Loader, ChevronRight, ChevronLeft, Edit,
-  Search, Filter, MoreVertical, Ban, RefreshCw
+  Search, Ban, RefreshCw, Activity, XCircle, Shield, MapPin, Download, Filter,
+  Plus
 } from 'lucide-react';
+import ReusableButton from '../../../components/Reusable/ReusableButton';
+import ReusableTable from '../../../components/Reusable/ReusableTable';
+import SuccessPopup from '../../../components/Reusable/SuccessPopup';
 
+// --- Types ---
 interface EventData {
   id: string;
   name: string;
@@ -52,6 +58,65 @@ interface FormData {
   tags: string[];
 }
 
+// --- Constants ---
+const categories = [
+  { value: 'concert', label: 'Concert', icon: Music, color: 'from-purple-500 to-pink-500' },
+  { value: 'theater', label: 'Theater', icon: Film, color: 'from-blue-500 to-cyan-500' },
+  { value: 'movie', label: 'Movie', icon: Film, color: 'from-red-500 to-orange-500' },
+  { value: 'comedy', label: 'Comedy', icon: Star, color: 'from-yellow-500 to-orange-500' },
+  { value: 'sports', label: 'Sports', icon: Award, color: 'from-green-500 to-emerald-500' },
+  { value: 'family', label: 'Family', icon: Users, color: 'from-indigo-500 to-purple-500' },
+];
+
+const halls = [
+  { id: 'hall-a', name: 'Grand Hall', capacity: 1500, features: ['AC', 'Dolby Atmos', 'VIP Area'] },
+  { id: 'hall-b', name: 'Blue Hall', capacity: 800, features: ['AC', 'Surround Sound'] },
+  { id: 'hall-c', name: 'Red Hall', capacity: 500, features: ['Standard Sound', 'AC'] },
+  { id: 'vip-hall', name: 'Royal Hall', capacity: 300, features: ['Premium Seats', 'Private Lounge', 'Dolby Atmos'] },
+];
+
+const availableFeatures = [
+  'VIP Area', 'Wheelchair Access', 'Food Service', 'Bar Service', 
+  'Parking Available', 'Air Conditioning', 'Dolby Atmos Sound', 
+  '4K Projection', 'Live Streaming', 'Meet & Greet', 'Free WiFi'
+];
+
+// --- Helper Functions ---
+const getStatusColor = (status: string): string => {
+  switch(status) {
+    case 'upcoming': return 'bg-blue-100 text-blue-700';
+    case 'ongoing': return 'bg-green-100 text-green-700';
+    case 'completed': return 'bg-gray-100 text-gray-700';
+    case 'cancelled': return 'bg-red-100 text-red-700';
+    default: return 'bg-gray-100 text-gray-700';
+  }
+};
+
+const getStatusIcon = (status: string) => {
+  switch(status) {
+    case 'upcoming': return <Clock className="h-3 w-3" />;
+    case 'ongoing': return <Activity className="h-3 w-3" />;
+    case 'completed': return <CheckCircle className="h-3 w-3" />;
+    case 'cancelled': return <XCircle className="h-3 w-3" />;
+    default: return null;
+  }
+};
+
+// QuickStatBadge component
+const QuickStatBadge: React.FC<{ icon: React.ElementType; label: string; value: string; status?: 'online' | 'offline' }> = ({ icon: Icon, label, value, status }) => (
+  <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full">
+    <Icon className="h-4 w-4" />
+    <span className="text-sm font-medium">{label}:</span>
+    <span className="text-sm">
+      {value}
+      {status && (
+        <span className={`ml-1 inline-block h-2 w-2 rounded-full ${status === 'online' ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+      )}
+    </span>
+  </div>
+);
+
+// --- Main Component ---
 const CreateEvent: React.FC = () => {
   const [events, setEvents] = useState<EventData[]>([]);
   const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
@@ -63,220 +128,247 @@ const CreateEvent: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [viewMode, setViewMode] = useState<'form' | 'table'>('form');
+  const [viewMode, setViewMode] = useState<'form' | 'table'>('table');
+  const [dateRange, setDateRange] = useState<'day' | 'week' | 'month' | 'year' | 'all'>('year');
+  const [cancelReason, setCancelReason] = useState('');
 
   const [formData, setFormData] = useState<FormData>({
-    name: '',
-    description: '',
-    date: '',
-    time: '',
-    endTime: '',
-    hall: '',
-    price: '',
-    capacity: '',
-    category: '',
-    ageRestriction: '',
-    contactEmail: '',
-    contactPhone: '',
-    website: '',
-    features: [],
-    organizer: '',
-    tags: []
+    name: '', description: '', date: '', time: '', endTime: '', hall: '',
+    price: '', capacity: '', category: '', ageRestriction: '', contactEmail: '',
+    contactPhone: '', website: '', features: [], organizer: '', tags: []
   });
 
   const [currentStep, setCurrentStep] = useState(1);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [tagInput, setTagInput] = useState('');
 
-  // Load events from localStorage on mount
+  // Load events from localStorage with 35 mock events (2025-2027)
   useEffect(() => {
     const savedEvents = localStorage.getItem('theater_events');
     if (savedEvents) {
       setEvents(JSON.parse(savedEvents));
     } else {
-      // Mock data for demo
-      const mockEvents: EventData[] = [
-        {
-          id: '1',
-          name: 'Summer Music Festival',
-          description: 'An amazing summer music festival featuring top artists.',
-          date: '2024-07-15',
-          time: '19:00',
-          endTime: '23:00',
-          hall: 'Grand Hall',
-          price: 150,
-          capacity: 1500,
-          category: 'concert',
-          ageRestriction: 'all',
-          contactEmail: 'events@example.com',
-          contactPhone: '+1 234 567 8900',
-          website: 'https://example.com',
-          features: ['VIP Area', 'Food Service', 'Bar Service'],
-          organizer: 'Events Management Co.',
-          tags: ['Exclusive', 'Limited Seats'],
-          createdAt: new Date().toISOString(),
-          status: 'upcoming',
-          bookedSeats: 1245,
-          revenue: 186750
-        },
-        {
-          id: '2',
-          name: 'Comedy Night',
-          description: 'A hilarious night of stand-up comedy.',
-          date: '2024-07-18',
-          time: '20:00',
-          endTime: '22:30',
-          hall: 'Blue Hall',
-          price: 75,
-          capacity: 800,
-          category: 'comedy',
-          ageRestriction: '18+',
-          contactEmail: 'comedy@example.com',
-          contactPhone: '+1 234 567 8901',
-          website: '',
-          features: ['Bar Service', 'AC'],
-          organizer: 'Comedy Club International',
-          tags: ['Group Discount'],
-          createdAt: new Date().toISOString(),
-          status: 'upcoming',
-          bookedSeats: 678,
-          revenue: 50850
+      const generateMockEvents = (): EventData[] => {
+        const eventNames = [
+          "Summer Music Festival", "Comedy Night", "Rock Revolution", "Shakespeare in the Park",
+          "Championship Boxing", "Family Magic Show", "Jazz Evening", "Horror Movie Marathon",
+          "Broadway Hits", "Outdoor Expo", "Electronic Dance Festival", "Classical Symphony",
+          "Stand-up Special", "Indie Film Festival", "Ballet Gala", "Tech Conference",
+          "Food & Wine Expo", "Kids' Day Out", "Fashion Show", "Motivational Talk",
+          "Art Exhibition", "Poetry Slam", "Wrestling Mania", "Piano Recital",
+          "Circus Extravaganza", "Opera Night", "Comic Con", "Charity Gala",
+          "Yoga Retreat", "Coding Bootcamp", "Startup Pitch Night", "Wedding Expo"
+        ];
+        
+        const categoriesList = ['concert', 'theater', 'movie', 'comedy', 'sports', 'family'];
+        const hallsList = ['Grand Hall', 'Blue Hall', 'Red Hall', 'Royal Hall'];
+        const timeSlots = [
+          { start: "10:00", end: "12:00" }, { start: "14:00", end: "16:00" },
+          { start: "18:00", end: "20:00" }, { start: "20:00", end: "22:00" },
+          { start: "19:00", end: "23:00" }, { start: "21:00", end: "23:30" }
+        ];
+        
+        const featuresSet = [
+          ['VIP Area', 'Food Service'], ['Bar Service', 'AC'], ['Wheelchair Access', 'Free WiFi'],
+          ['Parking Available', 'Dolby Atmos Sound'], ['4K Projection', 'Live Streaming'],
+          ['Meet & Greet', 'Premium Seats'], ['Private Lounge', 'Surround Sound']
+        ];
+        
+        const tagsSet = [
+          ['Exclusive', 'Music'], ['Group Discount'], ['Rock', 'Loud'], ['Classic', 'Shakespeare'],
+          ['Boxing', 'PPV'], ['Family', 'Magic'], ['Jazz', 'Relaxed'], ['Horror', 'Halloween'],
+          ['Musical', 'Premium'], ['Expo', 'Outdoor'], ['EDM', 'Festival'], ['Symphony', 'Classical'],
+          ['Comedy', 'Adult'], ['Indie', 'Film'], ['Ballet', 'Elegant'], ['Tech', 'Networking'],
+          ['Wine', 'Gourmet'], ['Kids', 'Fun'], ['Fashion', 'Runway'], ['Inspiration', 'Motivation']
+        ];
+        
+        const startDate = new Date(2025, 0, 1);
+        const endDate = new Date(2027, 11, 31);
+        const eventsList: EventData[] = [];
+        
+        for (let i = 1; i <= 35; i++) {
+          const randomDate = new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
+          const dateStr = randomDate.toISOString().split('T')[0];
+          const timeSlot = timeSlots[Math.floor(Math.random() * timeSlots.length)];
+          const category = categoriesList[Math.floor(Math.random() * categoriesList.length)];
+          const hallName = hallsList[Math.floor(Math.random() * hallsList.length)];
+          const hallCapacity = hallName === 'Grand Hall' ? 1500 : hallName === 'Blue Hall' ? 800 : hallName === 'Red Hall' ? 500 : 300;
+          const price = Math.floor(Math.random() * 250) + 20;
+          const capacity = hallCapacity;
+          let bookedSeats = 0;
+          let revenue = 0;
+          let status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled' = 'upcoming';
+          
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const eventDate = new Date(dateStr);
+          
+          if (eventDate < today) {
+            status = Math.random() > 0.9 ? 'cancelled' : 'completed';
+            bookedSeats = status === 'cancelled' ? 0 : Math.floor(capacity * (0.3 + Math.random() * 0.6));
+            revenue = bookedSeats * price;
+          } else if (eventDate.getTime() === today.getTime()) {
+            status = Math.random() > 0.7 ? 'ongoing' : 'upcoming';
+            bookedSeats = Math.floor(capacity * (0.2 + Math.random() * 0.7));
+            revenue = bookedSeats * price;
+          } else {
+            status = Math.random() > 0.95 ? 'cancelled' : 'upcoming';
+            bookedSeats = status === 'cancelled' ? 0 : Math.floor(capacity * (0.1 + Math.random() * 0.6));
+            revenue = bookedSeats * price;
+          }
+          
+          if (i % 5 === 0 && status !== 'cancelled') {
+            bookedSeats = Math.floor(capacity * (0.8 + Math.random() * 0.2));
+            revenue = bookedSeats * price;
+          }
+          
+          eventsList.push({
+            id: i.toString(),
+            name: eventNames[(i - 1) % eventNames.length] + ((i > eventNames.length) ? ` ${Math.floor((i - 1) / eventNames.length) + 1}` : ''),
+            description: `Experience an unforgettable ${category} event featuring top artists and amazing atmosphere. ${Math.random() > 0.5 ? 'Limited seats available!' : 'Book your tickets now!'}`,
+            date: dateStr,
+            time: timeSlot.start,
+            endTime: timeSlot.end,
+            hall: hallName,
+            price: price,
+            capacity: capacity,
+            category: category,
+            ageRestriction: ['all', '12+', '16+', '18+'][Math.floor(Math.random() * 4)],
+            contactEmail: `events${i}@example.com`,
+            contactPhone: `+1 234 567 ${8900 + i}`,
+            website: Math.random() > 0.7 ? `https://event${i}.com` : '',
+            features: featuresSet[Math.floor(Math.random() * featuresSet.length)],
+            organizer: `Organizer ${Math.floor(Math.random() * 20) + 1}`,
+            tags: tagsSet[Math.floor(Math.random() * tagsSet.length)],
+            imageUrl: undefined,
+            createdAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
+            status: status,
+            bookedSeats: bookedSeats,
+            revenue: revenue
+          });
         }
-      ];
+        return eventsList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      };
+      
+      const mockEvents = generateMockEvents();
       setEvents(mockEvents);
       localStorage.setItem('theater_events', JSON.stringify(mockEvents));
     }
   }, []);
 
-  // Save events to localStorage whenever they change
   useEffect(() => {
-    if (events.length > 0) {
-      localStorage.setItem('theater_events', JSON.stringify(events));
-    }
+    if (events.length > 0) localStorage.setItem('theater_events', JSON.stringify(events));
   }, [events]);
 
-  const categories = [
-    { value: 'concert', label: 'Concert', icon: Music, color: 'from-purple-500 to-pink-500', description: 'Live music performances' },
-    { value: 'theater', label: 'Theater', icon: Film, color: 'from-blue-500 to-cyan-500', description: 'Plays and dramas' },
-    { value: 'movie', label: 'Movie', icon: Film, color: 'from-red-500 to-orange-500', description: 'Film screenings' },
-    { value: 'comedy', label: 'Comedy', icon: Star, color: 'from-yellow-500 to-orange-500', description: 'Stand-up & comedy shows' },
-    { value: 'sports', label: 'Sports', icon: Award, color: 'from-green-500 to-emerald-500', description: 'Sports events' },
-    { value: 'family', label: 'Family', icon: Users, color: 'from-indigo-500 to-purple-500', description: 'Family-friendly events' },
-  ];
-
-  const halls = [
-    { id: 'hall-a', name: 'Grand Hall', capacity: 1500, priceMultiplier: 1.0, features: ['AC', 'Dolby Atmos', 'VIP Area', 'Wheelchair Access'] },
-    { id: 'hall-b', name: 'Blue Hall', capacity: 800, priceMultiplier: 0.8, features: ['AC', 'Surround Sound', 'Wheelchair Access'] },
-    { id: 'hall-c', name: 'Red Hall', capacity: 500, priceMultiplier: 0.6, features: ['Standard Sound', 'AC'] },
-    { id: 'vip-hall', name: 'Royal Hall', capacity: 300, priceMultiplier: 1.5, features: ['Premium Seats', 'Private Lounge', 'AC', 'Dolby Atmos', 'VIP Service'] },
-  ];
-
-  const availableFeatures = [
-    'VIP Area', 'Wheelchair Access', 'Food Service', 'Bar Service', 
-    'Parking Available', 'Air Conditioning', 'Dolby Atmos Sound', 
-    '4K Projection', 'Live Streaming', 'Meet & Greet', 'Photography Allowed',
-    'Food & Drinks Included', 'Free WiFi', 'Smoking Area', 'First Aid'
-  ];
-
-  const popularTags = ['Exclusive', 'Limited Seats', 'Early Bird', 'Group Discount', 'Student Offer', 'VIP Experience'];
-
-  const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'upcoming': return 'bg-blue-100 text-blue-700';
-      case 'ongoing': return 'bg-green-100 text-green-700';
-      case 'completed': return 'bg-gray-100 text-gray-700';
-      case 'cancelled': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
+  // Date range filter
+  const getDateRangeFilter = (range: typeof dateRange) => {
+    if (range === 'all') return { start: new Date(0), end: new Date(8640000000000000) };
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    switch(range) {
+      case 'day': return { start: today, end: today };
+      case 'week': {
+        const start = new Date(today);
+        start.setDate(today.getDate() - today.getDay());
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        return { start, end };
+      }
+      case 'month': {
+        const start = new Date(today.getFullYear(), today.getMonth(), 1);
+        const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        return { start, end };
+      }
+      case 'year': {
+        const start = new Date(today.getFullYear(), 0, 1);
+        const end = new Date(today.getFullYear(), 11, 31);
+        return { start, end };
+      }
+      default: return { start: new Date(0), end: new Date(8640000000000000) };
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch(status) {
-      case 'upcoming': return <Clock className="h-3 w-3" />;
-      case 'ongoing': return <Activity className="h-3 w-3" />;
-      case 'completed': return <CheckCircle className="h-3 w-3" />;
-      case 'cancelled': return <XCircle className="h-3 w-3" />;
-      default: return null;
-    }
+  const filteredEvents = events.filter(event => {
+    const matchesSearch = event.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || event.status === filterStatus;
+    const { start, end } = getDateRangeFilter(dateRange);
+    const eventDate = new Date(event.date);
+    const matchesDateRange = eventDate >= start && eventDate <= end;
+    return matchesSearch && matchesStatus && matchesDateRange;
+  });
+
+  const totalRevenue = filteredEvents.reduce((sum, e) => sum + e.revenue, 0);
+  const totalTickets = filteredEvents.reduce((sum, e) => sum + e.bookedSeats, 0);
+
+  const exportToCSV = () => {
+    const headers = ['Name', 'Date', 'Time', 'Hall', 'Price', 'Capacity', 'Booked Seats', 'Revenue', 'Status'];
+    const rows = filteredEvents.map(e => [
+      e.name, e.date, `${e.time} - ${e.endTime}`, e.hall, e.price, e.capacity, e.bookedSeats, e.revenue, e.status
+    ]);
+    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `events_${dateRange}_${new Date().toISOString()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } }
+  };
+
+  // Form handlers
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
-    }
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' });
   };
 
   const handleFeatureToggle = (feature: string) => {
     setFormData(prev => ({
       ...prev,
-      features: prev.features.includes(feature)
-        ? prev.features.filter(f => f !== feature)
-        : [...prev.features, feature]
+      features: prev.features.includes(feature) ? prev.features.filter(f => f !== feature) : [...prev.features, feature]
     }));
   };
 
   const handleAddTag = () => {
     if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()]
-      }));
+      setFormData(prev => ({ ...prev, tags: [...prev.tags, tagInput.trim()] }));
       setTagInput('');
     }
   };
 
   const handleRemoveTag = (tag: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(t => t !== tag)
-    }));
+    setFormData(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Image size should be less than 5MB');
-        return;
-      }
-      
-      if (!file.type.startsWith('image/')) {
-        alert('Please upload a valid image file');
-        return;
-      }
-
+      if (file.size > 5 * 1024 * 1024) { alert('Image size should be less than 5MB'); return; }
       setIsUploading(true);
-      
-      setTimeout(() => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setUploadedImage(reader.result as string);
-          setImageFile(file);
-          setIsUploading(false);
-        };
-        reader.readAsDataURL(file);
-      }, 1000);
+      const reader = new FileReader();
+      reader.onloadend = () => { setUploadedImage(reader.result as string); setIsUploading(false); };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleRemoveImage = () => {
-    setUploadedImage(null);
-    setImageFile(null);
-  };
+  const handleRemoveImage = () => setUploadedImage(null);
 
   const validateStep = () => {
     const newErrors: Record<string, string> = {};
-    
     if (currentStep === 1) {
       if (!formData.name) newErrors.name = 'Event name is required';
-      if (formData.name.length < 3) newErrors.name = 'Event name must be at least 3 characters';
+      else if (formData.name.length < 3) newErrors.name = 'Event name must be at least 3 characters';
       if (!formData.category) newErrors.category = 'Please select a category';
       if (!formData.organizer) newErrors.organizer = 'Organizer name is required';
     } else if (currentStep === 2) {
@@ -288,44 +380,20 @@ const CreateEvent: React.FC = () => {
       if (!formData.price || parseFloat(formData.price) <= 0) newErrors.price = 'Valid ticket price is required';
       if (!formData.capacity || parseInt(formData.capacity) <= 0) newErrors.capacity = 'Valid capacity is required';
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const nextStep = () => {
-    if (validateStep()) {
-      setCurrentStep(currentStep + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const prevStep = () => {
-    setCurrentStep(currentStep - 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const nextStep = () => { if (validateStep()) { setCurrentStep(currentStep + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
+  const prevStep = () => setCurrentStep(currentStep - 1);
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      description: '',
-      date: '',
-      time: '',
-      endTime: '',
-      hall: '',
-      price: '',
-      capacity: '',
-      category: '',
-      ageRestriction: '',
-      contactEmail: '',
-      contactPhone: '',
-      website: '',
-      features: [],
-      organizer: '',
-      tags: []
+      name: '', description: '', date: '', time: '', endTime: '', hall: '',
+      price: '', capacity: '', category: '', ageRestriction: '', contactEmail: '',
+      contactPhone: '', website: '', features: [], organizer: '', tags: []
     });
     setUploadedImage(null);
-    setImageFile(null);
     setTagInput('');
     setCurrentStep(1);
     setEditingEvent(null);
@@ -357,7 +425,6 @@ const CreateEvent: React.FC = () => {
         bookedSeats: 0,
         revenue: 0
       };
-
       setEvents([newEvent, ...events]);
       setSuccessMessage(`✨ Event "${newEvent.name}" created successfully!`);
       setShowSuccessPopup(true);
@@ -370,30 +437,27 @@ const CreateEvent: React.FC = () => {
   const handleUpdateEvent = () => {
     if (editingEvent && validateStep()) {
       const updatedEvents = events.map(event =>
-        event.id === editingEvent.id
-          ? {
-              ...event,
-              name: formData.name,
-              description: formData.description,
-              date: formData.date,
-              time: formData.time,
-              endTime: formData.endTime,
-              hall: halls.find(h => h.id === formData.hall)?.name || formData.hall,
-              price: parseFloat(formData.price),
-              capacity: parseInt(formData.capacity),
-              category: formData.category,
-              ageRestriction: formData.ageRestriction,
-              contactEmail: formData.contactEmail,
-              contactPhone: formData.contactPhone,
-              website: formData.website,
-              features: formData.features,
-              organizer: formData.organizer,
-              tags: formData.tags,
-              imageUrl: uploadedImage || event.imageUrl
-            }
-          : event
+        event.id === editingEvent.id ? {
+          ...event,
+          name: formData.name,
+          description: formData.description,
+          date: formData.date,
+          time: formData.time,
+          endTime: formData.endTime,
+          hall: halls.find(h => h.id === formData.hall)?.name || formData.hall,
+          price: parseFloat(formData.price),
+          capacity: parseInt(formData.capacity),
+          category: formData.category,
+          ageRestriction: formData.ageRestriction,
+          contactEmail: formData.contactEmail,
+          contactPhone: formData.contactPhone,
+          website: formData.website,
+          features: formData.features,
+          organizer: formData.organizer,
+          tags: formData.tags,
+          imageUrl: uploadedImage || event.imageUrl
+        } : event
       );
-
       setEvents(updatedEvents);
       setSuccessMessage(`✏️ Event "${editingEvent.name}" updated successfully!`);
       setShowSuccessPopup(true);
@@ -405,8 +469,7 @@ const CreateEvent: React.FC = () => {
 
   const handleDeleteEvent = () => {
     if (selectedEvent) {
-      const updatedEvents = events.filter(e => e.id !== selectedEvent.id);
-      setEvents(updatedEvents);
+      setEvents(events.filter(e => e.id !== selectedEvent.id));
       setShowDeleteModal(false);
       setSuccessMessage(`🗑️ Event "${selectedEvent.name}" deleted successfully!`);
       setShowSuccessPopup(true);
@@ -414,16 +477,53 @@ const CreateEvent: React.FC = () => {
     }
   };
 
+  // Cancel event – append reason to description
   const handleCancelEvent = () => {
     if (selectedEvent) {
+      let newDescription = selectedEvent.description;
+      // Remove any existing cancellation note
+      const cancelNoteRegex = / \[CANCELLED:.*?\]/;
+      newDescription = newDescription.replace(cancelNoteRegex, '');
+      if (cancelReason.trim()) {
+        newDescription += ` [CANCELLED: ${cancelReason.trim()}]`;
+      } else {
+        newDescription += ` [CANCELLED]`;
+      }
+      
       const updatedEvents = events.map(event =>
-        event.id === selectedEvent.id
-          ? { ...event, status: 'cancelled' as const }
-          : event
+        event.id === selectedEvent.id ? { 
+          ...event, 
+          status: 'cancelled' as const,
+          description: newDescription
+        } : event
       );
       setEvents(updatedEvents);
       setShowCancelModal(false);
+      setCancelReason('');
       setSuccessMessage(`⚠️ Event "${selectedEvent.name}" has been cancelled!`);
+      setShowSuccessPopup(true);
+      setTimeout(() => setShowSuccessPopup(false), 3000);
+    }
+  };
+
+  // Uncancel event – remove cancellation note
+  const handleUncancelEvent = () => {
+    if (selectedEvent) {
+      let newDescription = selectedEvent.description;
+      const cancelNoteRegex = / \[CANCELLED:.*?\]/;
+      newDescription = newDescription.replace(cancelNoteRegex, '');
+      
+      const updatedEvents = events.map(event =>
+        event.id === selectedEvent.id ? { 
+          ...event, 
+          status: 'upcoming' as const,
+          description: newDescription
+        } : event
+      );
+      setEvents(updatedEvents);
+      setShowCancelModal(false);
+      setCancelReason('');
+      setSuccessMessage(`🔄 Event "${selectedEvent.name}" has been restored to upcoming!`);
       setShowSuccessPopup(true);
       setTimeout(() => setShowSuccessPopup(false), 3000);
     }
@@ -432,9 +532,11 @@ const CreateEvent: React.FC = () => {
   const handleEditEvent = (event: EventData) => {
     setEditingEvent(event);
     const selectedHall = halls.find(h => h.name === event.hall);
+    // Remove cancellation note from description when editing
+    const cleanDescription = event.description.replace(/ \[CANCELLED:.*?\]/, '');
     setFormData({
       name: event.name,
-      description: event.description,
+      description: cleanDescription,
       date: event.date,
       time: event.time,
       endTime: event.endTime,
@@ -455,243 +557,168 @@ const CreateEvent: React.FC = () => {
     setViewMode('form');
   };
 
-  const selectedHall = halls.find(h => h.id === formData.hall);
-  const selectedCategory = categories.find(c => c.value === formData.category);
+  // Table columns with icon-only actions
+  const tableColumns = [
+    { Header: 'Event Name', accessor: 'name', sortable: true },
+    { Header: 'Date & Time', accessor: 'dateTime', sortable: true, Cell: (row: any) => <>{row.date}<br/><span className="text-xs text-gray-500">{row.time}</span></> },
+    { Header: 'Hall', accessor: 'hall', sortable: true },
+    { Header: 'Tickets', accessor: 'tickets', sortable: true, Cell: (row: any) => (
+      <div><span className="font-medium">{row.bookedSeats.toLocaleString()} / {row.capacity.toLocaleString()}</span>
+      <div className="w-24 bg-gray-200 rounded-full h-1.5 mt-1"><div className="bg-green-500 h-1.5 rounded-full" style={{ width: `${(row.bookedSeats / row.capacity) * 100}%` }} /></div></div>
+    ) },
+    { Header: 'Revenue', accessor: 'revenue', sortable: true, Cell: (row: any) => <span className="text-green-600 font-semibold">${row.revenue.toLocaleString()}</span> },
+    { Header: 'Status', accessor: 'status', sortable: true, Cell: (row: any) => (
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(row.status)}`}>
+        {getStatusIcon(row.status)} {row.status}
+      </span>
+    ) },
+    {
+      Header: 'Actions',
+      accessor: 'actions',
+      sortable: false,
+      width: 140,
+      Cell: (row: any) => (
+        <div className="flex gap-2 justify-center">
+          <button title="View Details" className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors" onClick={() => { setSelectedEvent(row.original); setShowDetailsModal(true); }}>
+            <Eye className="h-4 w-4 text-gray-600" />
+          </button>
+          <button title="Edit Event" className="p-1.5 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors" onClick={() => handleEditEvent(row.original)}>
+            <Edit className="h-4 w-4 text-blue-600" />
+          </button>
+          {row.status === 'cancelled' ? (
+            <button title="Uncancel Event" className="p-1.5 rounded-lg bg-green-100 hover:bg-green-200 transition-colors" onClick={() => { setSelectedEvent(row.original); setShowCancelModal(true); }}>
+              <RefreshCw className="h-4 w-4 text-green-600" />
+            </button>
+          ) : (
+            <button title="Cancel Event" className="p-1.5 rounded-lg bg-orange-100 hover:bg-orange-200 transition-colors" onClick={() => { setSelectedEvent(row.original); setShowCancelModal(true); }}>
+              <Ban className="h-4 w-4 text-orange-600" />
+            </button>
+          )}
+          <button title="Delete Event" className="p-1.5 rounded-lg bg-red-100 hover:bg-red-200 transition-colors" onClick={() => { setSelectedEvent(row.original); setShowDeleteModal(true); }}>
+            <Trash2 className="h-4 w-4 text-red-600" />
+          </button>
+        </div>
+      )
+    }
+  ];
 
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = event.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || event.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
-
-  const totalRevenue = filteredEvents.reduce((sum, e) => sum + e.revenue, 0);
-  const totalTickets = filteredEvents.reduce((sum, e) => sum + e.bookedSeats, 0);
+  const tableData = filteredEvents.map(event => ({
+    id: event.id,
+    name: event.name,
+    date: event.date,
+    time: `${event.time} - ${event.endTime}`,
+    hall: event.hall,
+    bookedSeats: event.bookedSeats,
+    capacity: event.capacity,
+    revenue: event.revenue,
+    status: event.status,
+    original: event
+  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      {/* Header with Toggle */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-8">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2">Event Management</h1>
-              <p className="text-lg opacity-90">Create and manage all your theater events</p>
+      {/* Admin Dashboard Style Header */}
+      <div className="bg-gradient-to-br from-teal-700 to-blue-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0">
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute bg-white/10 rounded-full"
+              style={{
+                width: Math.random() * 100 + 50,
+                height: Math.random() * 100 + 50,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                x: [0, Math.random() * 100 - 50],
+                y: [0, Math.random() * 100 - 50],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: Math.random() * 10 + 10,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+            />
+          ))}
+        </div>
+        <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 200, delay: 0.3 }} className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-xl rounded-full mb-4">
+            <Shield className="h-4 w-4" />
+            <span className="text-sm font-medium">Event Manager • Admin Dashboard</span>
+          </motion.div>
+          <motion.h1 className="text-4xl font-bold mb-2" initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.4 }}>Welcome back, Administrator!</motion.h1>
+          <motion.p className="text-white/80 text-lg" initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }}>Here's what's happening with your events today</motion.p>
+          <motion.div className="flex items-center gap-6 mt-6 flex-wrap" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }}>
+            <QuickStatBadge icon={Calendar} label="Date" value={new Date().toLocaleDateString()} />
+            <QuickStatBadge icon={MapPin} label="Location" value="Addis Ababa" />
+            <QuickStatBadge icon={Activity} label="System Status" value="Healthy" status="online" />
+            <QuickStatBadge icon={Users} label="Total Events" value={events.length.toString()} />
+          </motion.div>
+          <div className="flex justify-between items-center mt-8">
+            <div className="flex gap-2">
+              {(['day', 'week', 'month', 'year', 'all'] as const).map((range) => (
+                <button key={range} onClick={() => setDateRange(range)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${dateRange === range ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/30' : 'bg-white/20 text-white hover:bg-white/30'}`}>
+                  {range.charAt(0).toUpperCase() + range.slice(1)}
+                </button>
+              ))}
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => { resetForm(); setViewMode('form'); }}
-                className={`px-6 py-2 rounded-xl font-semibold transition ${viewMode === 'form' ? 'bg-white text-blue-600' : 'bg-blue-700 text-white hover:bg-blue-800'}`}
-              >
-                + Create Event
-              </button>
-              <button
-                onClick={() => setViewMode('table')}
-                className={`px-6 py-2 rounded-xl font-semibold transition ${viewMode === 'table' ? 'bg-white text-blue-600' : 'bg-blue-700 text-white hover:bg-blue-800'}`}
-              >
-                📋 All Events
-              </button>
+            <div className="flex gap-2">
+              <button onClick={exportToCSV} className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"><Download className="h-5 w-5 text-white" /></button>
+              <button className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"><Filter className="h-5 w-5 text-white" /></button>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* TABLE VIEW - All Events */}
+        {/* TABLE VIEW */}
         {viewMode === 'table' && (
-          <div>
+          <motion.div variants={containerVariants} initial="hidden" animate="visible">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <Calendar className="h-8 w-8 opacity-90" />
-                  <span className="text-2xl font-bold">{filteredEvents.length}</span>
-                </div>
-                <p className="text-sm opacity-90">Total Events</p>
-              </div>
-              
-              <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <Ticket className="h-8 w-8 opacity-90" />
-                  <span className="text-2xl font-bold">{totalTickets.toLocaleString()}</span>
-                </div>
-                <p className="text-sm opacity-90">Tickets Sold</p>
-              </div>
-              
-              <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <DollarSign className="h-8 w-8 opacity-90" />
-                  <span className="text-2xl font-bold">${totalRevenue.toLocaleString()}</span>
-                </div>
-                <p className="text-sm opacity-90">Total Revenue</p>
-              </div>
-              
-              <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <RefreshCw className="h-8 w-8 opacity-90" />
-                  <button onClick={() => setViewMode('form')} className="text-white hover:text-gray-200">
-                    + New Event
-                  </button>
-                </div>
-                <p className="text-sm opacity-90">Create New</p>
-              </div>
+              <motion.div variants={itemVariants} className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg"><div className="flex justify-between items-center mb-2"><Calendar className="h-8 w-8" /><span className="text-2xl font-bold">{filteredEvents.length}</span></div><p className="text-sm">Events in {dateRange}</p></motion.div>
+              <motion.div variants={itemVariants} className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg"><div className="flex justify-between items-center mb-2"><Ticket className="h-8 w-8" /><span className="text-2xl font-bold">{totalTickets.toLocaleString()}</span></div><p className="text-sm">Tickets Sold</p></motion.div>
+              <motion.div variants={itemVariants} className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg"><div className="flex justify-between items-center mb-2"><DollarSign className="h-8 w-8" /><span className="text-2xl font-bold">${totalRevenue.toLocaleString()}</span></div><p className="text-sm">Total Revenue</p></motion.div>
+              <motion.div variants={itemVariants} className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg"><div className="flex justify-between items-center mb-2"><RefreshCw className="h-8 w-8" /><span className="text-2xl font-bold">+</span></div><p className="text-sm">Create New Event</p></motion.div>
             </div>
 
-            {/* Search and Filter */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            {/* Search & Filter */}
+            <motion.div variants={itemVariants} className="bg-white rounded-2xl shadow-lg p-6 mb-8">
               <div className="flex flex-wrap gap-4">
-                <div className="flex-1 min-w-[250px] relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <input
-                    type="text"
-                    placeholder="Search events by name..."
-                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <select
-                  className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                  <option value="all">All Status</option>
-                  <option value="upcoming">Upcoming</option>
-                  <option value="ongoing">Ongoing</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
+                <div className="flex-1 min-w-[250px] relative"><Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" /><input type="text" placeholder="Search events by name..." className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
+                <select className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                  <option value="all">All Status</option><option value="upcoming">Upcoming</option><option value="ongoing">Ongoing</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option>
                 </select>
+                <ReusableButton onClick={() => { resetForm(); setViewMode('form'); }} variant="primary" icon={Plus}>Create Event</ReusableButton>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Events Table */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                    <tr>
-                      <th className="text-left p-4 font-semibold text-gray-700">Event Name</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Date & Time</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Hall</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Tickets</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Revenue</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Status</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredEvents.map((event) => (
-                      <tr key={event.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                        <td className="p-4">
-                          <div>
-                            <p className="font-semibold text-gray-800">{event.name}</p>
-                            <p className="text-xs text-gray-500">{event.organizer}</p>
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <p className="text-gray-800">{event.date}</p>
-                          <p className="text-sm text-gray-500">{event.time}</p>
-                        </td>
-                        <td className="p-4 text-gray-600">{event.hall}</td>
-                        <td className="p-4">
-                          <p className="text-gray-800">{event.bookedSeats.toLocaleString()} / {event.capacity.toLocaleString()}</p>
-                          <div className="w-24 bg-gray-200 rounded-full h-1.5 mt-1">
-                            <div 
-                              className="bg-green-500 h-1.5 rounded-full"
-                              style={{ width: `${(event.bookedSeats / event.capacity) * 100}%` }}
-                            />
-                          </div>
-                        </td>
-                        <td className="p-4 font-semibold text-green-600">${event.revenue.toLocaleString()}</td>
-                        <td className="p-4">
-                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(event.status)}`}>
-                            {getStatusIcon(event.status)}
-                            {event.status}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => { setSelectedEvent(event); setShowDetailsModal(true); }} 
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                              title="View Details"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </button>
-                            <button 
-                              onClick={() => handleEditEvent(event)} 
-                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
-                              title="Edit Event"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button 
-                              onClick={() => { setSelectedEvent(event); setShowCancelModal(true); }} 
-                              className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition"
-                              title="Cancel Event"
-                              disabled={event.status === 'cancelled'}
-                            >
-                              <Ban className="h-4 w-4" />
-                            </button>
-                            <button 
-                              onClick={() => { setSelectedEvent(event); setShowDeleteModal(true); }} 
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                              title="Delete Event"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {filteredEvents.length === 0 && (
-                <div className="text-center py-12">
-                  <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No events found. Create your first event!</p>
-                  <button onClick={() => setViewMode('form')} className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    + Create Event
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+            {/* Table */}
+            <motion.div variants={itemVariants}>
+              <ReusableTable columns={tableColumns} data={tableData} title="All Events" showSearch={false} showExport={false} showPrint={false} itemsPerPage={10} />
+            </motion.div>
+          </motion.div>
         )}
 
-        {/* FORM VIEW - Create/Edit Event */}
+        {/* FORM VIEW - Multi-step */}
         {viewMode === 'form' && (
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            {/* Progress Steps */}
             <div className="px-8 pt-8">
               <div className="flex items-center justify-between">
-                {[
-                  { step: 1, title: 'Basic Info', icon: FileText },
-                  { step: 2, title: 'Schedule', icon: Calendar },
-                  { step: 3, title: 'Pricing', icon: DollarSign },
-                  { step: 4, title: 'Media', icon: Image },
-                  { step: 5, title: 'Review', icon: CheckCircle }
-                ].map((item) => {
+                {[{ step: 1, title: 'Basic Info', icon: FileText }, { step: 2, title: 'Schedule', icon: Calendar }, { step: 3, title: 'Pricing', icon: DollarSign }, { step: 4, title: 'Media', icon: Image }, { step: 5, title: 'Review', icon: CheckCircle }].map((item) => {
                   const status = item.step < currentStep ? 'completed' : item.step === currentStep ? 'current' : 'pending';
                   const Icon = item.icon;
                   return (
                     <div key={item.step} className="flex-1 relative">
-                      <div className={`h-1 ${status === 'completed' ? 'bg-green-500' : status === 'current' ? 'bg-blue-500' : 'bg-gray-200'} transition-all duration-500`} />
+                      <div className={`h-1 ${status === 'completed' ? 'bg-green-500' : status === 'current' ? 'bg-blue-500' : 'bg-gray-200'}`} />
                       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <div className={`
-                          w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300
-                          ${status === 'completed' ? 'bg-green-500 text-white' : 
-                            status === 'current' ? 'bg-blue-500 text-white ring-4 ring-blue-200' : 
-                            'bg-gray-200 text-gray-500'}
-                        `}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg ${status === 'completed' ? 'bg-green-500 text-white' : status === 'current' ? 'bg-blue-500 text-white ring-4 ring-blue-200' : 'bg-gray-200 text-gray-500'}`}>
                           {status === 'completed' ? <CheckCircle className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
                         </div>
                       </div>
-                      <p className={`text-center mt-6 text-sm font-medium ${
-                        status === 'current' ? 'text-blue-600' : 'text-gray-500'
-                      }`}>
-                        {item.title}
-                      </p>
+                      <p className={`text-center mt-6 text-sm font-medium ${status === 'current' ? 'text-blue-600' : 'text-gray-500'}`}>{item.title}</p>
                     </div>
                   );
                 })}
@@ -699,484 +726,69 @@ const CreateEvent: React.FC = () => {
             </div>
 
             <form onSubmit={(e) => { e.preventDefault(); editingEvent ? handleUpdateEvent() : handleCreateEvent(); }}>
-              {/* Step 1: Basic Information */}
               {currentStep === 1 && (
-                <div className="p-8 space-y-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-3 bg-blue-100 rounded-xl">
-                      <FileText className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Basic Information</h2>
-                      <p className="text-gray-500 text-sm">Tell us about your event</p>
-                    </div>
+                <div className="p-8 space-y-6">
+                  <div><label className="block font-semibold mb-2">Event Name *</label><input type="text" name="name" className={`w-full p-3 border-2 rounded-xl ${errors.name ? 'border-red-500' : 'border-gray-200'}`} value={formData.name} onChange={handleChange} />{errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}</div>
+                  <div><label className="block font-semibold mb-2">Description</label><textarea name="description" rows={4} className="w-full p-3 border-2 border-gray-200 rounded-xl" value={formData.description} onChange={handleChange} /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className="block font-semibold mb-2">Category *</label><div className="grid grid-cols-2 gap-2">{categories.map(cat => (<button type="button" key={cat.value} onClick={() => setFormData({...formData, category: cat.value})} className={`p-2 border rounded-lg text-sm ${formData.category === cat.value ? `bg-gradient-to-r ${cat.color} text-white` : 'bg-white'}`}>{cat.label}</button>))}</div>{errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}</div>
+                    <div><label className="block font-semibold mb-2">Organizer *</label><input type="text" name="organizer" className="w-full p-3 border-2 border-gray-200 rounded-xl" value={formData.organizer} onChange={handleChange} />{errors.organizer && <p className="text-red-500 text-sm mt-1">{errors.organizer}</p>}</div>
                   </div>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Event Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
-                          errors.name ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="e.g., Summer Music Festival 2024"
-                      />
-                      {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                      <textarea
-                        name="description"
-                        rows={4}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-300 transition"
-                        value={formData.description}
-                        onChange={handleChange}
-                        placeholder="Describe your event in detail..."
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Category <span className="text-red-500">*</span>
-                        </label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {categories.map((cat) => (
-                            <button
-                              key={cat.value}
-                              type="button"
-                              onClick={() => setFormData({...formData, category: cat.value})}
-                              className={`p-3 border-2 rounded-xl text-left transition-all ${
-                                formData.category === cat.value
-                                  ? `bg-gradient-to-r ${cat.color} border-transparent text-white`
-                                  : 'border-gray-200 hover:border-gray-300 bg-white'
-                              }`}
-                            >
-                              <cat.icon className={`h-5 w-5 mb-1 ${
-                                formData.category === cat.value ? 'text-white' : 'text-gray-400'
-                              }`} />
-                              <p className={`text-sm font-semibold ${
-                                formData.category === cat.value ? 'text-white' : 'text-gray-800'
-                              }`}>
-                                {cat.label}
-                              </p>
-                            </button>
-                          ))}
-                        </div>
-                        {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Organizer <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="organizer"
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          value={formData.organizer}
-                          onChange={handleChange}
-                          placeholder="e.g., Events Management Co."
-                        />
-                        {errors.organizer && <p className="text-red-500 text-sm mt-1">{errors.organizer}</p>}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Contact Email</label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                          <input
-                            type="email"
-                            name="contactEmail"
-                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={formData.contactEmail}
-                            onChange={handleChange}
-                            placeholder="contact@example.com"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Contact Phone</label>
-                        <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                          <input
-                            type="tel"
-                            name="contactPhone"
-                            className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={formData.contactPhone}
-                            onChange={handleChange}
-                            placeholder="+1 234 567 8900"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Website (Optional)</label>
-                      <div className="relative">
-                        <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                        <input
-                          type="url"
-                          name="website"
-                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          value={formData.website}
-                          onChange={handleChange}
-                          placeholder="https://example.com"
-                        />
-                      </div>
-                    </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className="block font-semibold mb-2">Contact Email</label><input type="email" name="contactEmail" className="w-full p-3 border-2 border-gray-200 rounded-xl" value={formData.contactEmail} onChange={handleChange} /></div>
+                    <div><label className="block font-semibold mb-2">Contact Phone</label><input type="tel" name="contactPhone" className="w-full p-3 border-2 border-gray-200 rounded-xl" value={formData.contactPhone} onChange={handleChange} /></div>
                   </div>
                 </div>
               )}
 
-              {/* Step 2: Schedule & Venue */}
               {currentStep === 2 && (
-                <div className="p-8 space-y-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-3 bg-green-100 rounded-xl">
-                      <Calendar className="h-6 w-6 text-green-600" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Schedule & Venue</h2>
-                      <p className="text-gray-500 text-sm">Set the date, time, and location</p>
-                    </div>
+                <div className="p-8 space-y-6">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div><label className="block font-semibold mb-2">Date *</label><input type="date" name="date" className={`w-full p-3 border-2 rounded-xl ${errors.date ? 'border-red-500' : 'border-gray-200'}`} value={formData.date} onChange={handleChange} />{errors.date && <p className="text-red-500 text-sm mt-1">{errors.date}</p>}</div>
+                    <div><label className="block font-semibold mb-2">Start Time *</label><input type="time" name="time" className={`w-full p-3 border-2 rounded-xl ${errors.time ? 'border-red-500' : 'border-gray-200'}`} value={formData.time} onChange={handleChange} />{errors.time && <p className="text-red-500 text-sm mt-1">{errors.time}</p>}</div>
+                    <div><label className="block font-semibold mb-2">End Time *</label><input type="time" name="endTime" className={`w-full p-3 border-2 rounded-xl ${errors.endTime ? 'border-red-500' : 'border-gray-200'}`} value={formData.endTime} onChange={handleChange} />{errors.endTime && <p className="text-red-500 text-sm mt-1">{errors.endTime}</p>}</div>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Event Date <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="date"
-                        name="date"
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.date ? 'border-red-500' : 'border-gray-200'
-                        }`}
-                        value={formData.date}
-                        onChange={handleChange}
-                      />
-                      {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Start Time <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="time"
-                        name="time"
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.time ? 'border-red-500' : 'border-gray-200'
-                        }`}
-                        value={formData.time}
-                        onChange={handleChange}
-                      />
-                      {errors.time && <p className="text-red-500 text-sm mt-1">{errors.time}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        End Time <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="time"
-                        name="endTime"
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.endTime ? 'border-red-500' : 'border-gray-200'
-                        }`}
-                        value={formData.endTime}
-                        onChange={handleChange}
-                      />
-                      {errors.endTime && <p className="text-red-500 text-sm mt-1">{errors.endTime}</p>}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Select Venue <span className="text-red-500">*</span>
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {halls.map((hall) => (
-                        <button
-                          key={hall.id}
-                          type="button"
-                          onClick={() => setFormData({...formData, hall: hall.id})}
-                          className={`p-4 border-2 rounded-xl text-left transition-all ${
-                            formData.hall === hall.id
-                              ? 'border-blue-500 bg-blue-50 shadow-lg'
-                              : 'border-gray-200 hover:border-gray-300 bg-white'
-                          }`}
-                        >
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h3 className="text-lg font-bold text-gray-800">{hall.name}</h3>
-                              <p className="text-sm text-gray-500">Capacity: {hall.capacity.toLocaleString()} seats</p>
-                            </div>
-                            <Users className={`h-5 w-5 ${formData.hall === hall.id ? 'text-blue-500' : 'text-gray-400'}`} />
-                          </div>
-                          <div className="flex flex-wrap gap-1">
-                            {hall.features.slice(0, 2).map((feature, idx) => (
-                              <span key={idx} className="text-xs bg-gray-100 px-2 py-0.5 rounded">
-                                {feature}
-                              </span>
-                            ))}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                    {errors.hall && <p className="text-red-500 text-sm mt-2">{errors.hall}</p>}
-                  </div>
+                  <div><label className="block font-semibold mb-2">Select Venue *</label><div className="grid grid-cols-2 gap-3">{halls.map(hall => (<button type="button" key={hall.id} onClick={() => setFormData({...formData, hall: hall.id})} className={`p-3 border-2 rounded-xl text-left ${formData.hall === hall.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}><div className="font-bold">{hall.name}</div><div className="text-sm text-gray-500">Capacity: {hall.capacity}</div></button>))}</div>{errors.hall && <p className="text-red-500 text-sm mt-1">{errors.hall}</p>}</div>
                 </div>
               )}
 
-              {/* Step 3: Pricing & Capacity */}
               {currentStep === 3 && (
-                <div className="p-8 space-y-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-3 bg-orange-100 rounded-xl">
-                      <DollarSign className="h-6 w-6 text-orange-600" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Pricing & Capacity</h2>
-                      <p className="text-gray-500 text-sm">Set ticket prices and availability</p>
-                    </div>
+                <div className="p-8 space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className="block font-semibold mb-2">Ticket Price ($) *</label><input type="number" name="price" step="0.01" className={`w-full p-3 border-2 rounded-xl ${errors.price ? 'border-red-500' : 'border-gray-200'}`} value={formData.price} onChange={handleChange} />{errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}</div>
+                    <div><label className="block font-semibold mb-2">Capacity *</label><input type="number" name="capacity" className={`w-full p-3 border-2 rounded-xl ${errors.capacity ? 'border-red-500' : 'border-gray-200'}`} value={formData.capacity} onChange={handleChange} />{errors.capacity && <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>}</div>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Ticket Price ($) <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold">$</span>
-                        <input
-                          type="number"
-                          name="price"
-                          step="0.01"
-                          className={`w-full pl-8 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                            errors.price ? 'border-red-500' : 'border-gray-200'
-                          }`}
-                          value={formData.price}
-                          onChange={handleChange}
-                          placeholder="0.00"
-                        />
-                      </div>
-                      {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Total Capacity <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        name="capacity"
-                        className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          errors.capacity ? 'border-red-500' : 'border-gray-200'
-                        }`}
-                        value={formData.capacity}
-                        onChange={handleChange}
-                        placeholder="Number of seats"
-                      />
-                      {errors.capacity && <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Age Restriction</label>
-                    <select
-                      name="ageRestriction"
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={formData.ageRestriction}
-                      onChange={handleChange}
-                    >
-                      <option value="">No restriction (All Ages)</option>
-                      <option value="all">All Ages Welcome</option>
-                      <option value="12+">12+ (Parental Guidance)</option>
-                      <option value="16+">16+</option>
-                      <option value="18+">18+ (Adults Only)</option>
-                      <option value="21+">21+</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Event Features</label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {availableFeatures.slice(0, 9).map((feature) => (
-                        <label key={feature} className="flex items-center gap-2 p-2 border-2 border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
-                          <input
-                            type="checkbox"
-                            checked={formData.features.includes(feature)}
-                            onChange={() => handleFeatureToggle(feature)}
-                            className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
-                          />
-                          <span className="text-sm text-gray-700">{feature}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Event Tags</label>
-                    <div className="flex gap-2 mb-3">
-                      <input
-                        type="text"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
-                        className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Add tags (e.g., Exclusive, Limited Seats)"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddTag}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
-                      >
-                        Add
-                      </button>
-                    </div>
-                    {formData.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {formData.tags.map((tag) => (
-                          <span key={tag} className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm">
-                            #{tag}
-                            <button type="button" onClick={() => handleRemoveTag(tag)} className="hover:text-blue-900">
-                              <X className="h-3 w-3" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <div><label className="block font-semibold mb-2">Age Restriction</label><select name="ageRestriction" className="w-full p-3 border-2 border-gray-200 rounded-xl" value={formData.ageRestriction} onChange={handleChange}><option value="">All Ages</option><option value="12+">12+</option><option value="16+">16+</option><option value="18+">18+</option></select></div>
+                  <div><label className="block font-semibold mb-2">Features</label><div className="grid grid-cols-3 gap-2">{availableFeatures.map(f => (<label key={f} className="flex items-center gap-2"><input type="checkbox" checked={formData.features.includes(f)} onChange={() => handleFeatureToggle(f)} />{f}</label>))}</div></div>
+                  <div><label className="block font-semibold mb-2">Tags</label><div className="flex gap-2"><input type="text" value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleAddTag()} className="flex-1 p-3 border-2 border-gray-200 rounded-xl" /><ReusableButton onClick={handleAddTag} variant="primary">Add</ReusableButton></div><div className="flex flex-wrap gap-2 mt-2">{formData.tags.map(t => (<span key={t} className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm flex items-center gap-1">#{t}<button onClick={() => handleRemoveTag(t)}><X className="h-3 w-3" /></button></span>))}</div></div>
                 </div>
               )}
 
-              {/* Step 4: Media Upload */}
               {currentStep === 4 && (
-                <div className="p-8 space-y-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-3 bg-purple-100 rounded-xl">
-                      <Image className="h-6 w-6 text-purple-600" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Event Media</h2>
-                      <p className="text-gray-500 text-sm">Upload an eye-catching poster for your event</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Event Poster</label>
-                    
-                    {!uploadedImage ? (
-                      <div className="border-3 border-dashed rounded-2xl p-8 text-center transition border-gray-300 hover:border-blue-500 bg-gray-50">
-                        <input
-                          type="file"
-                          id="image-upload"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                        />
-                        <label htmlFor="image-upload" className="cursor-pointer">
-                          <div className="flex flex-col items-center">
-                            <div className="p-4 bg-blue-100 rounded-full mb-4">
-                              <Upload className="h-10 w-10 text-blue-600" />
-                            </div>
-                            <p className="text-lg font-semibold text-gray-700 mb-2">Click to upload poster</p>
-                            <p className="text-sm text-gray-500">PNG, JPG, or GIF (Max 5MB)</p>
-                          </div>
-                        </label>
-                      </div>
-                    ) : (
-                      <div className="relative group">
-                        <img src={uploadedImage} alt="Preview" className="w-full max-h-64 object-cover rounded-2xl shadow-lg" />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100">
-                          <button onClick={handleRemoveImage} className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700">
-                            <Trash2 className="h-5 w-5" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                <div className="p-8 space-y-6">
+                  <div>{!uploadedImage ? (<div className="border-2 border-dashed rounded-2xl p-8 text-center"><input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="upload" /><label htmlFor="upload" className="cursor-pointer"><Upload className="h-10 w-10 mx-auto text-gray-400" /><p>Click to upload poster</p></label></div>) : (<div className="relative"><img src={uploadedImage} alt="Preview" className="w-full max-h-64 object-cover rounded-xl" /><ReusableButton onClick={handleRemoveImage} variant="danger" size="sm">Remove</ReusableButton></div>)}</div>
                 </div>
               )}
 
-              {/* Step 5: Review & Submit */}
               {currentStep === 5 && (
-                <div className="p-8 space-y-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="p-3 bg-green-100 rounded-xl">
-                      <CheckCircle className="h-6 w-6 text-green-600" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Review & Submit</h2>
-                      <p className="text-gray-500 text-sm">Double-check all the details before submitting</p>
-                    </div>
+                <div className="p-8 space-y-6">
+                  <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
+                    <div><p className="font-semibold">Event Name</p><p>{formData.name || '—'}</p></div>
+                    <div><p className="font-semibold">Category</p><p>{categories.find(c => c.value === formData.category)?.label || '—'}</p></div>
+                    <div><p className="font-semibold">Date</p><p>{formData.date || '—'}</p></div>
+                    <div><p className="font-semibold">Time</p><p>{formData.time} - {formData.endTime}</p></div>
+                    <div><p className="font-semibold">Venue</p><p>{halls.find(h => h.id === formData.hall)?.name || '—'}</p></div>
+                    <div><p className="font-semibold">Price</p><p>${formData.price}</p></div>
+                    <div><p className="font-semibold">Capacity</p><p>{formData.capacity} seats</p></div>
+                    <div><p className="font-semibold">Features</p><p>{formData.features.join(', ') || 'None'}</p></div>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-gray-50 rounded-xl p-4">
-                      <p className="font-semibold text-gray-800 mb-2">Event Details</p>
-                      <p><span className="text-gray-600">Name:</span> {formData.name || '—'}</p>
-                      <p><span className="text-gray-600">Category:</span> {selectedCategory?.label || '—'}</p>
-                      <p><span className="text-gray-600">Organizer:</span> {formData.organizer || '—'}</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4">
-                      <p className="font-semibold text-gray-800 mb-2">Schedule</p>
-                      <p><span className="text-gray-600">Date:</span> {formData.date || '—'}</p>
-                      <p><span className="text-gray-600">Time:</span> {formData.time} - {formData.endTime}</p>
-                      <p><span className="text-gray-600">Venue:</span> {selectedHall?.name || '—'}</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4">
-                      <p className="font-semibold text-gray-800 mb-2">Pricing</p>
-                      <p><span className="text-gray-600">Price:</span> ${formData.price || '0'}</p>
-                      <p><span className="text-gray-600">Capacity:</span> {formData.capacity || '0'} seats</p>
-                      <p><span className="text-gray-600">Age Restriction:</span> {formData.ageRestriction || 'None'}</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-xl p-4">
-                      <p className="font-semibold text-gray-800 mb-2">Features & Tags</p>
-                      <p><span className="text-gray-600">Features:</span> {formData.features.length || 'None'}</p>
-                      <p><span className="text-gray-600">Tags:</span> {formData.tags.join(', ') || 'None'}</p>
-                    </div>
-                  </div>
-
-                  <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                      <p className="text-sm text-yellow-800">Please verify all information before submitting.</p>
-                    </div>
-                  </div>
+                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4"><AlertCircle className="inline mr-2" />Please verify all information before submitting.</div>
                 </div>
               )}
 
-              {/* Navigation Buttons */}
-              <div className="px-8 py-6 bg-gray-50 border-t border-gray-200 flex justify-between">
-                {currentStep > 1 && (
-                  <button type="button" onClick={prevStep} className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition font-semibold">
-                    <ChevronLeft className="h-5 w-5" />
-                    Previous
-                  </button>
-                )}
-                {currentStep < 5 ? (
-                  <button type="button" onClick={nextStep} className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-lg transition ml-auto font-semibold">
-                    Next Step
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                ) : (
-                  <button type="submit" disabled={isUploading} className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:shadow-lg transition ml-auto font-semibold disabled:opacity-50">
-                    {isUploading ? <><Loader className="h-5 w-5 animate-spin" /> Processing...</> : <><CheckCircle className="h-5 w-5" /> {editingEvent ? 'Update Event' : 'Create Event'}</>}
-                  </button>
-                )}
+              <div className="px-8 py-6 bg-gray-50 border-t flex justify-between">
+                {currentStep > 1 && <ReusableButton onClick={prevStep} variant="secondary" icon={ChevronLeft}>Previous</ReusableButton>}
+                {currentStep < 5 ? <ReusableButton onClick={nextStep} variant="primary" icon={ChevronRight} className="ml-auto">Next Step</ReusableButton> : <ReusableButton type="submit" variant="success" disabled={isUploading} icon={isUploading ? Loader : CheckCircle} className="ml-auto">{isUploading ? 'Processing...' : (editingEvent ? 'Update Event' : 'Create Event')}</ReusableButton>}
               </div>
             </form>
           </div>
@@ -1186,25 +798,23 @@ const CreateEvent: React.FC = () => {
         {showDetailsModal && selectedEvent && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl sticky top-0">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">{selectedEvent.name}</h2>
-                  <button onClick={() => setShowDetailsModal(false)} className="hover:opacity-80"><X className="h-6 w-6" /></button>
-                </div>
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl flex justify-between items-center">
+                <h2 className="text-2xl font-bold">{selectedEvent.name}</h2>
+                <ReusableButton onClick={() => setShowDetailsModal(false)} variant="secondary" size="sm" icon={X}>Close</ReusableButton>
               </div>
               <div className="p-6 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div><p className="text-gray-500 text-sm">Date</p><p className="font-semibold">{selectedEvent.date}</p></div>
-                  <div><p className="text-gray-500 text-sm">Time</p><p className="font-semibold">{selectedEvent.time} - {selectedEvent.endTime}</p></div>
-                  <div><p className="text-gray-500 text-sm">Venue</p><p className="font-semibold">{selectedEvent.hall}</p></div>
-                  <div><p className="text-gray-500 text-sm">Ticket Price</p><p className="font-semibold text-green-600">${selectedEvent.price}</p></div>
-                  <div><p className="text-gray-500 text-sm">Capacity</p><p className="font-semibold">{selectedEvent.capacity} seats</p></div>
-                  <div><p className="text-gray-500 text-sm">Booked Seats</p><p className="font-semibold">{selectedEvent.bookedSeats}</p></div>
-                  <div><p className="text-gray-500 text-sm">Revenue</p><p className="font-semibold text-green-600">${selectedEvent.revenue.toLocaleString()}</p></div>
-                  <div><p className="text-gray-500 text-sm">Status</p><span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedEvent.status)}`}>{selectedEvent.status}</span></div>
+                  <div><p className="text-gray-500">Date</p><p className="font-semibold">{selectedEvent.date}</p></div>
+                  <div><p className="text-gray-500">Time</p><p className="font-semibold">{selectedEvent.time} - {selectedEvent.endTime}</p></div>
+                  <div><p className="text-gray-500">Venue</p><p className="font-semibold">{selectedEvent.hall}</p></div>
+                  <div><p className="text-gray-500">Price</p><p className="font-semibold text-green-600">${selectedEvent.price}</p></div>
+                  <div><p className="text-gray-500">Capacity</p><p className="font-semibold">{selectedEvent.capacity} seats</p></div>
+                  <div><p className="text-gray-500">Booked Seats</p><p className="font-semibold">{selectedEvent.bookedSeats}</p></div>
+                  <div><p className="text-gray-500">Revenue</p><p className="font-semibold text-green-600">${selectedEvent.revenue.toLocaleString()}</p></div>
+                  <div><p className="text-gray-500">Status</p><span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedEvent.status)}`}>{selectedEvent.status}</span></div>
                 </div>
-                <div><p className="text-gray-500 text-sm">Description</p><p className="text-gray-700">{selectedEvent.description}</p></div>
-                {selectedEvent.features.length > 0 && (<div><p className="text-gray-500 text-sm">Features</p><div className="flex flex-wrap gap-1 mt-1">{selectedEvent.features.map((f, i) => (<span key={i} className="text-xs bg-gray-100 px-2 py-1 rounded">✓ {f}</span>))}</div></div>)}
+                <div><p className="text-gray-500">Description</p><p className="text-gray-700">{selectedEvent.description}</p></div>
+                {selectedEvent.features.length > 0 && (<div><p className="text-gray-500">Features</p><div className="flex flex-wrap gap-1">{selectedEvent.features.map((f,i) => (<span key={i} className="text-xs bg-gray-100 px-2 py-1 rounded">✓ {f}</span>))}</div></div>)}
               </div>
             </div>
           </div>
@@ -1217,40 +827,58 @@ const CreateEvent: React.FC = () => {
               <div className="text-center mb-4"><AlertCircle className="h-16 w-16 text-red-500 mx-auto" /></div>
               <h2 className="text-xl font-bold text-center mb-2">Delete Event</h2>
               <p className="text-gray-600 text-center mb-6">Are you sure you want to delete "{selectedEvent.name}"? This action cannot be undone.</p>
-              <div className="flex gap-3"><button onClick={() => setShowDeleteModal(false)} className="flex-1 px-4 py-2 border rounded-lg">Cancel</button><button onClick={handleDeleteEvent} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg">Delete</button></div>
+              <div className="flex gap-3"><ReusableButton onClick={() => setShowDeleteModal(false)} variant="secondary">Cancel</ReusableButton><ReusableButton onClick={handleDeleteEvent} variant="danger">Delete</ReusableButton></div>
             </div>
           </div>
         )}
 
-        {/* Cancel Confirmation Modal */}
+        {/* Cancel/Uncancel Confirmation Modal with reason input */}
         {showCancelModal && selectedEvent && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl max-w-md w-full p-6">
-              <div className="text-center mb-4"><Ban className="h-16 w-16 text-orange-500 mx-auto" /></div>
-              <h2 className="text-xl font-bold text-center mb-2">Cancel Event</h2>
-              <p className="text-gray-600 text-center mb-6">Are you sure you want to cancel "{selectedEvent.name}"? This will cancel all bookings.</p>
-              <div className="flex gap-3"><button onClick={() => setShowCancelModal(false)} className="flex-1 px-4 py-2 border rounded-lg">Keep Event</button><button onClick={handleCancelEvent} className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg">Cancel Event</button></div>
+              <div className="text-center mb-4">
+                {selectedEvent.status === 'cancelled' ? (
+                  <RefreshCw className="h-16 w-16 text-green-500 mx-auto" />
+                ) : (
+                  <Ban className="h-16 w-16 text-orange-500 mx-auto" />
+                )}
+              </div>
+              <h2 className="text-xl font-bold text-center mb-2">
+                {selectedEvent.status === 'cancelled' ? 'Uncancel Event' : 'Cancel Event'}
+              </h2>
+              <p className="text-gray-600 text-center mb-6">
+                {selectedEvent.status === 'cancelled'
+                  ? `Are you sure you want to restore "${selectedEvent.name}" to upcoming status? Bookings will be reopened.`
+                  : `Are you sure you want to cancel "${selectedEvent.name}"? This will cancel all bookings.`}
+              </p>
+              {selectedEvent.status !== 'cancelled' && (
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Cancellation Reason (optional)</label>
+                  <textarea
+                    rows={3}
+                    className="w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    placeholder="Why is this event being cancelled?"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                  />
+                </div>
+              )}
+              <div className="flex gap-3">
+                <ReusableButton onClick={() => { setShowCancelModal(false); setCancelReason(''); }} variant="secondary">Keep as is</ReusableButton>
+                <ReusableButton
+                  onClick={selectedEvent.status === 'cancelled' ? handleUncancelEvent : handleCancelEvent}
+                  variant={selectedEvent.status === 'cancelled' ? 'success' : 'warning'}
+                >
+                  {selectedEvent.status === 'cancelled' ? 'Yes, Uncancel' : 'Yes, Cancel Event'}
+                </ReusableButton>
+              </div>
             </div>
           </div>
         )}
 
         {/* Success Popup */}
-        {showSuccessPopup && (
-          <div className="fixed bottom-8 right-8 z-50 animate-slideInRight">
-            <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl shadow-2xl p-4 max-w-md">
-              <div className="flex items-center gap-3"><CheckCircle className="h-8 w-8" /><p className="font-bold">{successMessage}</p></div>
-            </div>
-          </div>
-        )}
+        <SuccessPopup message={successMessage} isVisible={showSuccessPopup} onClose={() => setShowSuccessPopup(false)} />
       </div>
-
-      <style>{`
-        @keyframes slideInRight {
-          from { transform: translateX(100px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        .animate-slideInRight { animation: slideInRight 0.3s ease-out; }
-      `}</style>
     </div>
   );
 };
